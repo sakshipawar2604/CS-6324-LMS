@@ -176,11 +176,20 @@ export default function StudentDashboard() {
                   >
                     <td className="py-2 px-3">{g.assignment_title}</td>
                     <td className="py-2 px-3">{g.course_title}</td>
-                    <td className="py-2 px-3 font-medium text-green-700">
+                    <td
+                      className={`py-2 px-3 font-semibold ${
+                        g.grade >= 90
+                          ? "text-green-700"
+                          : g.grade >= 75
+                          ? "text-yellow-600"
+                          : "text-red-600"
+                      }`}
+                    >
                       {g.grade !== null && g.grade !== undefined
                         ? `${g.grade}/100`
                         : "-"}
                     </td>
+
                     <td className="py-2 px-3 text-gray-600">
                       {g.feedback || "-"}
                     </td>

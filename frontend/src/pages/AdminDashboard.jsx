@@ -45,7 +45,6 @@ export default function AdminDashboard() {
     { title: "Total Students", value: metrics.total_students },
     { title: "Total Courses", value: metrics.total_courses },
     { title: "Total Enrollments", value: metrics.total_enrollments },
-    { title: "Pending Submissions", value: metrics.pending_submissions },
   ];
 
   return (

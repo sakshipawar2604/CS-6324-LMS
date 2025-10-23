@@ -145,22 +145,22 @@ export function setupMocks() {
     return [200, pendingAssignments];
   });
 
-  // Recent Grades
+  // Recent Grades (numeric grading)
   mock.onGet(/\/submissions\?studentId=.*&graded=true/).reply(() => {
     const recentGrades = [
       {
         submission_id: "S101",
         assignment_title: "Sorting Algorithms",
         course_title: "Data Structures",
-        grade: "A",
-        feedback: "Excellent work!",
+        grade: 95,
+        feedback: "Excellent work! Code is efficient and well-documented.",
       },
       {
         submission_id: "S102",
         assignment_title: "ER Diagram Design",
         course_title: "Database Systems",
-        grade: "B+",
-        feedback: "Good effort, minor schema issue.",
+        grade: 82,
+        feedback: "Good effort! Minor schema relationship issue.",
       },
     ];
     return [200, recentGrades];
