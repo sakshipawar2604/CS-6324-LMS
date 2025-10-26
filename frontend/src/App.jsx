@@ -5,6 +5,8 @@ import TeacherDashboard from "./pages/TeacherDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 import CourseDetails from "./pages/CourseDetails";
 import ManageUsers from "./pages/ManageUsers";
+import ManageCourses from "./pages/ManageCourses";
+import ManageEnrollments from "./pages/ManageEnrollments";
 import NotFound from "./pages/NotFound";
 import DashboardLayout from "./layouts/DashboardLayout";
 import AdminLayout from "./layouts/AdminLayout";
@@ -20,6 +22,8 @@ export default function App() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="users" element={<ManageUsers />} />
+        <Route path="courses" element={<ManageCourses />} />
+        <Route path="enrollments" element={<ManageEnrollments />} />
       </Route>
 
       {/* Teacher routes */}

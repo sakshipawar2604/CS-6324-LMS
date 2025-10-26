@@ -61,31 +61,47 @@ export default function StudentDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
+      <header>
         <h1 className="text-2xl font-bold text-indigo-700">
           Student Dashboard
         </h1>
         <p className="text-gray-500">
           Your courses, assignments, and grades at a glance
         </p>
-      </div>
+      </header>
 
       {/* Enrolled Courses */}
-      <section>
-        <h2 className="text-lg font-semibold text-indigo-600 mb-3">
+      <section aria-labelledby="courses-heading">
+        <h2
+          id="courses-heading"
+          className="text-lg font-semibold text-indigo-600 mb-3"
+        >
           My Courses
         </h2>
         {courses.length === 0 ? (
-          <p className="text-gray-500 italic">
+          <p className="text-gray-500 italic" role="status">
             You are not enrolled in any courses yet.
           </p>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            role="list"
+            aria-label="Enrolled courses"
+          >
             {courses.map((c) => (
-              <div
+              <article
                 key={c.course_id}
-                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-indigo-100 hover:border-indigo-300 transition-transform hover:scale-[1.02] cursor-pointer"
+                role="listitem"
+                aria-label={c.title}
+                tabIndex={0}
                 onClick={() => navigate(`/student/courses/${c.course_id}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    navigate(`/student/courses/${c.course_id}`);
+                  }
+                }}
+                className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-indigo-100 hover:border-indigo-300 transition-transform hover:scale-[1.02] cursor-pointer focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2 focus:outline-none"
               >
                 <div className="h-2 bg-gradient-to-r from-blue-400 to-indigo-500"></div>
                 <div className="p-5">
@@ -102,29 +118,41 @@ export default function StudentDashboard() {
                       : "-"}
                   </p>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         )}
       </section>
 
       {/* Pending Assignments */}
-      <section>
-        <h2 className="text-lg font-semibold text-indigo-600 mb-3">
+      <section aria-labelledby="assignments-heading">
+        <h2
+          id="assignments-heading"
+          className="text-lg font-semibold text-indigo-600 mb-3"
+        >
           Pending Assignments
         </h2>
         {pendingAssignments.length === 0 ? (
-          <p className="text-gray-500 text-sm italic">
+          <p className="text-gray-500 text-sm italic" role="status">
             No pending assignments 🎉
           </p>
         ) : (
           <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="min-w-full text-sm">
+            <table
+              className="min-w-full text-sm"
+              aria-label="Pending assignments table"
+            >
               <thead className="bg-indigo-600 text-white">
                 <tr>
-                  <th className="py-2 px-3 text-left">Title</th>
-                  <th className="py-2 px-3 text-left">Course</th>
-                  <th className="py-2 px-3 text-left">Due Date</th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Title
+                  </th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Course
+                  </th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Due Date
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -149,23 +177,37 @@ export default function StudentDashboard() {
       </section>
 
       {/* Recent Grades */}
-      <section>
-        <h2 className="text-lg font-semibold text-indigo-600 mb-3">
+      <section aria-labelledby="grades-heading">
+        <h2
+          id="grades-heading"
+          className="text-lg font-semibold text-indigo-600 mb-3"
+        >
           Recent Grades
         </h2>
         {recentGrades.length === 0 ? (
-          <p className="text-gray-500 text-sm italic">
+          <p className="text-gray-500 text-sm italic" role="status">
             No grades available yet.
           </p>
         ) : (
           <div className="bg-white rounded-xl shadow overflow-hidden">
-            <table className="min-w-full text-sm">
+            <table
+              className="min-w-full text-sm"
+              aria-label="Recent grades table"
+            >
               <thead className="bg-green-600 text-white">
                 <tr>
-                  <th className="py-2 px-3 text-left">Assignment</th>
-                  <th className="py-2 px-3 text-left">Course</th>
-                  <th className="py-2 px-3 text-left">Grade</th>
-                  <th className="py-2 px-3 text-left">Feedback</th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Assignment
+                  </th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Course
+                  </th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Grade
+                  </th>
+                  <th scope="col" className="py-2 px-3 text-left">
+                    Feedback
+                  </th>
                 </tr>
               </thead>
               <tbody>

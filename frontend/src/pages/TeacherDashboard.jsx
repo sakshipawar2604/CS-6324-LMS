@@ -48,27 +48,42 @@ export default function TeacherDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div>
+      <header>
         <h1 className="text-2xl font-bold text-indigo-700">
           Teacher Dashboard
         </h1>
         <p className="text-gray-500">
           Overview of the courses you are currently teaching
         </p>
-      </div>
+      </header>
 
       {/* Assigned Courses */}
       {courses.length === 0 ? (
-        <p className="text-gray-500 italic">
+        <p className="text-gray-500 italic" role="status">
           You are not assigned to any courses yet.
         </p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+          role="list"
+          aria-label="Assigned courses"
+        >
           {courses.map((course) => (
-            <div
+            <article
               key={course.course_id}
-              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-indigo-100 hover:border-indigo-300 transition-transform hover:scale-[1.02] cursor-pointer overflow-hidden"
+              role="listitem"
+              aria-label={`${course.title} - ${
+                course.studentCount ?? 0
+              } students`}
+              tabIndex={0}
               onClick={() => navigate(`/teacher/courses/${course.course_id}`)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  navigate(`/teacher/courses/${course.course_id}`);
+                }
+              }}
+              className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-indigo-100 hover:border-indigo-300 transition-transform hover:scale-[1.02] cursor-pointer overflow-hidden focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2 focus:outline-none"
             >
               {/* top color band */}
               <div className="h-2 bg-gradient-to-r from-indigo-400 to-indigo-600"></div>
@@ -91,7 +106,7 @@ export default function TeacherDashboard() {
                   </p>
                 </div>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}

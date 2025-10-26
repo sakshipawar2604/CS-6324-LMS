@@ -7,8 +7,9 @@ export default function AdminSidebar() {
   const navItems = [
     { label: "Dashboard", path: "/admin/dashboard", icon: "🏠" },
     { label: "Manage Users", path: "/admin/users", icon: "👥" },
+    { label: "Manage Courses", path: "/admin/courses", icon: "📘" },
+    { label: "Manage Enrollments", path: "/admin/enrollments", icon: "📚" },
     // Future extensions
-    // { label: "Manage Courses", path: "/admin/courses", icon: "📘" },
     // { label: "Reports", path: "/admin/reports", icon: "📊" },
   ];
 
@@ -27,18 +28,26 @@ export default function AdminSidebar() {
         </div>
 
         {/* Nav links */}
-        <nav className="mt-6 flex flex-col space-y-2 px-4">
+        <nav
+          className="mt-6 flex flex-col space-y-2 px-4"
+          aria-label="Main navigation"
+        >
           {navItems.map((item) => (
             <NavLink
               key={item.label}
               to={item.path}
+              aria-label={item.label}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-600 transition ${
-                  isActive ? "bg-indigo-600 font-semibold" : ""
+                `flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-indigo-600 transition focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700 ${
+                  isActive
+                    ? "bg-indigo-600 font-semibold ring-2 ring-white"
+                    : ""
                 }`
               }
             >
-              <span className="text-lg">{item.icon}</span>
+              <span className="text-lg" aria-hidden="true">
+                {item.icon}
+              </span>
               <span>{item.label}</span>
             </NavLink>
           ))}
@@ -49,7 +58,8 @@ export default function AdminSidebar() {
       <div className="px-4 py-6">
         <button
           onClick={handleLogout}
-          className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 rounded-lg text-sm font-medium transition"
+          aria-label="Logout"
+          className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 rounded-lg text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700"
         >
           Logout
         </button>

@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import toast from "react-hot-toast";
 import api from "../services/http";
 import { useEffect } from "react";
+import SkipToMain from "../components/SkipToMain";
 
 // Validation schema using Yup
 const schema = Yup.object({
@@ -56,27 +57,41 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
-      <div className="w-full max-w-md bg-white/80 backdrop-blur-lg border border-indigo-100 rounded-3xl shadow-2xl p-8 animate-fade-in">
-        <h2 className="text-4xl font-extrabold text-center text-indigo-600 mb-2">
+    <main className="flex min-h-screen items-center justify-center px-4">
+      <SkipToMain />
+      <div
+        id="main-content"
+        className="w-full max-w-md bg-white/80 backdrop-blur-lg border border-indigo-100 rounded-3xl shadow-2xl p-8 animate-fade-in"
+      >
+        <h1 className="text-4xl font-extrabold text-center text-indigo-600 mb-2">
           Welcome to LMS
-        </h2>
+        </h1>
         <p className="text-center text-gray-500 mb-8">
           Sign in to continue your learning journey
         </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-5"
+          aria-label="Login form"
+        >
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Email
             </label>
             <input
+              id="email"
               type="email"
               placeholder="example@lms.edu"
               {...register("email")}
+              aria-invalid={errors.email ? "true" : "false"}
+              aria-describedby={errors.email ? "email-error" : undefined}
               className={`w-full border ${
                 errors.email ? "border-red-400" : "border-gray-300"
-              } rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition`}
+              } rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none transition`}
             />
             {errors.email && (
               <div className="flex items-center gap-2 mt-1 text-red-600 text-sm bg-red-50 px-2 py-1 rounded-md border border-red-200">
@@ -86,16 +101,22 @@ export default function Login() {
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Password
             </label>
             <input
+              id="password"
               type="password"
               placeholder="••••••••"
               {...register("password")}
+              aria-invalid={errors.password ? "true" : "false"}
+              aria-describedby={errors.password ? "password-error" : undefined}
               className={`w-full border ${
                 errors.password ? "border-red-400" : "border-gray-300"
-              } rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 focus:outline-none transition`}
+              } rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none transition`}
             />
             {errors.password && (
               <div className="flex items-center gap-2 mt-1 text-red-600 text-sm bg-red-50 px-2 py-1 rounded-md border border-red-200">
@@ -132,6 +153,6 @@ export default function Login() {
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 }

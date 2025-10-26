@@ -27,7 +27,7 @@ export default function ManageUsers() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <header className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold text-indigo-700">Manage Users</h1>
           <p className="text-gray-500 text-sm">
@@ -36,26 +36,46 @@ export default function ManageUsers() {
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+          aria-label="Add new user"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
         >
           + Add User
         </button>
-      </div>
+      </header>
 
       {/* Users Table */}
       {loading ? (
-        <p className="text-gray-500 animate-pulse">Loading users...</p>
+        <p
+          className="text-gray-500 animate-pulse"
+          role="status"
+          aria-live="polite"
+        >
+          Loading users...
+        </p>
       ) : users.length === 0 ? (
-        <p className="text-gray-400 italic">No users found.</p>
+        <p className="text-gray-400 italic" role="status">
+          No users found.
+        </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white shadow rounded-lg overflow-hidden">
+          <table
+            className="min-w-full bg-white shadow rounded-lg overflow-hidden"
+            aria-label="Users table"
+          >
             <thead className="bg-indigo-600 text-white">
               <tr>
-                <th className="py-3 px-4 text-left">Name</th>
-                <th className="py-3 px-4 text-left">Email</th>
-                <th className="py-3 px-4 text-left">Role</th>
-                <th className="py-3 px-4 text-left">Joined On</th>
+                <th scope="col" className="py-3 px-4 text-left">
+                  Name
+                </th>
+                <th scope="col" className="py-3 px-4 text-left">
+                  Email
+                </th>
+                <th scope="col" className="py-3 px-4 text-left">
+                  Role
+                </th>
+                <th scope="col" className="py-3 px-4 text-left">
+                  Joined On
+                </th>
               </tr>
             </thead>
             <tbody>

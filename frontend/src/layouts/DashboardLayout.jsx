@@ -1,6 +1,7 @@
 import { Outlet, useNavigate, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
+import SkipToMain from "../components/SkipToMain";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -9,7 +10,8 @@ export default function DashboardLayout() {
   useEffect(() => {
     const stored = localStorage.getItem("user");
     if (stored) {
-      setUser(JSON.parse(stored));
+      const parsed = JSON.parse(stored);
+      setUser({ ...parsed, role: parsed.role?.toLowerCase() });
     } else {
       toast.error("Please log in first");
       navigate("/login");
@@ -24,6 +26,7 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex h-screen bg-gray-50">
+      <SkipToMain />
       {/* ===== Sidebar ===== */}
       <aside className="w-64 bg-indigo-700 text-white flex flex-col p-4">
         <h2 className="text-2xl font-bold mb-8">LMS</h2>
@@ -55,13 +58,16 @@ export default function DashboardLayout() {
                 👥 Manage Users
               </NavLink>
 
-              {/* Add Manage Courses later */}
-              {/* <button
-                onClick={() => navigate("/admin/courses")}
-                className="flex items-center gap-2 text-left hover:bg-indigo-600 rounded px-3 py-2"
+              <NavLink
+                to="/admin/courses"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
                 📘 Manage Courses
-              </button> */}
+              </NavLink>
             </>
           )}
 
@@ -135,7 +141,8 @@ export default function DashboardLayout() {
         <div className="mt-auto">
           <button
             onClick={handleLogout}
-            className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 mt-6 rounded-lg font-semibold"
+            aria-label="Logout"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 mt-6 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700"
           >
             Logout
           </button>
@@ -143,13 +150,18 @@ export default function DashboardLayout() {
       </aside>
 
       {/* ===== Main Content Area ===== */}
-      <main className="flex-1 flex flex-col">
+      <main id="main-content" className="flex-1 flex flex-col">
         {/* Header */}
         <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-semibold text-indigo-700">
+          <h2 className="text-xl font-semibold text-indigo-700">
             Hello, {user?.user?.name || "User"}
-          </h1>
-          <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
+          </h2>
+          <p
+            className="text-sm text-gray-500 capitalize"
+            aria-label={`Role: ${user?.role}`}
+          >
+            {user?.role}
+          </p>
         </header>
 
         {/* Render page content here */}

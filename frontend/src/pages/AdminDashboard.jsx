@@ -73,29 +73,40 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-10">
       {/* Header */}
-      <div>
+      <header>
         <h1 className="text-2xl font-bold text-indigo-700">Admin Dashboard</h1>
         <p className="text-gray-500">
           Overview of users, courses, and enrollments
         </p>
-      </div>
+      </header>
 
       {/* Metrics grid */}
       <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+          role="list"
+          aria-label="Dashboard metrics"
+        >
           {cards.map((card) => (
-            <div
+            <article
               key={card.label}
-              className={`rounded-xl shadow-lg bg-gradient-to-br ${card.color} text-white p-6 flex flex-col justify-between hover:scale-105 transition-transform`}
+              role="listitem"
+              aria-label={`${card.label}: ${card.value}`}
+              className={`rounded-xl shadow-lg bg-gradient-to-br ${card.color} text-white p-6 flex flex-col justify-between hover:scale-105 transition-transform focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2`}
+              tabIndex={0}
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-4xl">{card.icon}</span>
+                <span className="text-4xl" aria-hidden="true">
+                  {card.icon}
+                </span>
               </div>
               <div>
-                <p className="text-5xl font-extrabold mb-2">{card.value}</p>
+                <p className="text-5xl font-extrabold mb-2" aria-live="polite">
+                  {card.value}
+                </p>
                 <p className="text-base font-medium opacity-90">{card.label}</p>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       </div>

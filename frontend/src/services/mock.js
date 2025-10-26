@@ -344,6 +344,91 @@ export function setupMocks() {
     return [201, newUser];
   });
 
+  // ---- ADMIN COURSES MANAGEMENT ----
+
+  // Get all courses
+  mock.onGet("/admin/courses").reply(200, [
+    {
+      course_id: "CSE101",
+      title: "Introduction to Computer Science",
+      description:
+        "Fundamentals of algorithms, data structures, and programming.",
+      created_by: "John Doe",
+      created_at: "2025-01-15",
+    },
+    {
+      course_id: "CSE201",
+      title: "Database Systems",
+      description: "Relational models, SQL queries, and schema design.",
+      created_by: "Rahul Mehta",
+      created_at: "2025-02-10",
+    },
+    {
+      course_id: "CSE301",
+      title: "Operating Systems",
+      description: "Threads, processes, memory management, and scheduling.",
+      created_by: "Alice Smith",
+      created_at: "2025-02-20",
+    },
+  ]);
+
+  // Add new course
+  mock.onPost("/admin/courses").reply((config) => {
+    const newCourse = JSON.parse(config.data);
+    const createdCourse = {
+      ...newCourse,
+      course_id: "CSE" + Math.floor(Math.random() * 1000),
+      created_at: new Date().toISOString().split("T")[0],
+    };
+    console.log("📘 Mock course added:", createdCourse);
+    return [201, createdCourse];
+  });
+
+  // ========== ADMIN: Manage Courses ==========
+
+  // Get all courses
+  mock.onGet("/admin/courses").reply(200, [
+    {
+      course_id: "CSE101",
+      title: "Introduction to Computer Science",
+      description:
+        "Fundamentals of algorithms, data structures, and programming.",
+      created_by: "John Doe",
+      created_at: "2025-01-15",
+    },
+    {
+      course_id: "CSE201",
+      title: "Database Systems",
+      description: "Relational models, SQL queries, and schema design.",
+      created_by: "Rahul Mehta",
+      created_at: "2025-02-10",
+    },
+  ]);
+
+  // ---- ADMIN ENROLLMENTS MANAGEMENT ----
+  mock.onGet("/admin/enrollments").reply(200, [
+    {
+      id: "E001",
+      student_name: "Alice Smith",
+      course_title: "Data Structures",
+      enrollment_date: "2025-09-10",
+    },
+    {
+      id: "E002",
+      student_name: "Rahul Mehta",
+      course_title: "Database Systems",
+      enrollment_date: "2025-09-15",
+    },
+  ]);
+
+  mock.onPost("/admin/enrollments/add").reply((config) => {
+    const newEnrollment = JSON.parse(config.data);
+    newEnrollment.id = "E" + Math.floor(100 + Math.random() * 900);
+    newEnrollment.enrollment_date = new Date().toISOString().split("T")[0];
+    console.log("🎓 Mock enrollment added:", newEnrollment);
+    return [201, newEnrollment];
+  });
+
   // fallback: let any unmatched request pass through (to real backend if running)
   mock.onAny().passThrough();
 }
