@@ -1,4 +1,4 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -24,60 +24,114 @@ export default function DashboardLayout() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
+      {/* ===== Sidebar ===== */}
       <aside className="w-64 bg-indigo-700 text-white flex flex-col p-4">
         <h2 className="text-2xl font-bold mb-8">LMS</h2>
-        <nav className="flex flex-col gap-3">
+
+        {/* Navigation */}
+        <nav className="flex flex-col gap-2">
+          {/* -------- Admin Links -------- */}
           {user?.role === "admin" && (
             <>
-              <button
-                onClick={() => navigate("/admin/dashboard")}
-                className="text-left hover:bg-indigo-600 rounded px-3 py-2"
+              <NavLink
+                to="/admin/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate("/admin/users")}
-                className="text-left hover:bg-indigo-600 rounded px-3 py-2"
+                🏠 Dashboard
+              </NavLink>
+
+              <NavLink
+                to="/admin/users"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
-                Manage Users
-              </button>
+                👥 Manage Users
+              </NavLink>
+
+              {/* Add Manage Courses later */}
+              {/* <button
+                onClick={() => navigate("/admin/courses")}
+                className="flex items-center gap-2 text-left hover:bg-indigo-600 rounded px-3 py-2"
+              >
+                📘 Manage Courses
+              </button> */}
             </>
           )}
+
+          {/* -------- Teacher Links -------- */}
           {user?.role === "teacher" && (
             <>
-              <button
-                onClick={() => navigate("/teacher/dashboard")}
-                className="text-left hover:bg-indigo-600 rounded px-3 py-2"
+              <NavLink
+                to="/teacher/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate("/teacher/courses")}
-                className="text-left hover:bg-indigo-600 rounded px-3 py-2"
+                🏠 Dashboard
+              </NavLink>
+
+              <NavLink
+                to="/teacher/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
-                My Courses
-              </button>
+                📘 My Courses
+              </NavLink>
             </>
           )}
+
+          {/* -------- Student Links -------- */}
           {user?.role === "student" && (
             <>
-              <button
-                onClick={() => navigate("/student/dashboard")}
-                className="text-left hover:bg-indigo-600 rounded px-3 py-2"
+              <NavLink
+                to="/student/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
-                Dashboard
-              </button>
-              <button
-                onClick={() => navigate("/student/assignments")}
-                className="text-left hover:bg-indigo-600 rounded px-3 py-2"
+                🏠 Dashboard
+              </NavLink>
+
+              <NavLink
+                to="/student/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
               >
-                Assignments
-              </button>
+                🎓 My Courses
+              </NavLink>
+
+              <NavLink
+                to="/student/assignments"
+                className={({ isActive }) =>
+                  `flex items-center gap-2 px-3 py-2 rounded ${
+                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
+                  }`
+                }
+              >
+                🧾 Assignments
+              </NavLink>
             </>
           )}
         </nav>
 
+        {/* ===== Logout button ===== */}
         <div className="mt-auto">
           <button
             onClick={handleLogout}
@@ -88,8 +142,9 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* ===== Main Content Area ===== */}
       <main className="flex-1 flex flex-col">
+        {/* Header */}
         <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
           <h1 className="text-xl font-semibold text-indigo-700">
             Hello, {user?.user?.name || "User"}
@@ -97,7 +152,7 @@ export default function DashboardLayout() {
           <p className="text-sm text-gray-500 capitalize">{user?.role}</p>
         </header>
 
-        {/* 👇 All dashboards (Admin/Teacher/Student) render here */}
+        {/* Render page content here */}
         <div className="p-6 flex-1 overflow-y-auto">
           <Outlet />
         </div>

@@ -311,6 +311,39 @@ export function setupMocks() {
     ];
   });
 
+  // ---- ADMIN USERS MANAGEMENT ----
+  mock.onGet("/admin/users").reply(200, [
+    {
+      id: "U001",
+      name: "John Doe",
+      email: "teacher1@lms.test",
+      role: "Teacher",
+      joined_at: "2024-08-10",
+    },
+    {
+      id: "U002",
+      name: "Alice Smith",
+      email: "student1@lms.test",
+      role: "Student",
+      joined_at: "2024-09-15",
+    },
+    {
+      id: "U003",
+      name: "Rahul Mehta",
+      email: "teacher2@lms.test",
+      role: "Teacher",
+      joined_at: "2024-10-01",
+    },
+  ]);
+
+  mock.onPost("/admin/users/add").reply((config) => {
+    const newUser = JSON.parse(config.data);
+    newUser.id = "U" + Math.floor(Math.random() * 1000);
+    newUser.joined_at = new Date().toISOString().split("T")[0];
+    console.log("🆕 Mock user added:", newUser);
+    return [201, newUser];
+  });
+
   // fallback: let any unmatched request pass through (to real backend if running)
   mock.onAny().passThrough();
 }
