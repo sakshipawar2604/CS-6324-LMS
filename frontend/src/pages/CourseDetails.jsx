@@ -6,6 +6,7 @@ import AssignmentForm from "./AssignmentForm";
 import SubmitAssignmentModal from "../components/SubmitAssignmentModal";
 import AssignmentSubmissionsModal from "../components/AssignmentSubmissionsModal";
 import UploadResourceModal from "../components/UploadResourceModal";
+import PerformanceTab from "../components/PerformanceTab";
 
 export default function CourseDetails() {
   const { courseId } = useParams();
@@ -77,15 +78,23 @@ export default function CourseDetails() {
 
       {/* Tabs */}
       <div className="flex border-b border-gray-200">
-        {["overview", "assignments", "resources", "students"].map((t) => (
+        {[
+          "overview",
+          "assignments",
+          "resources",
+          "students",
+          "performance",
+        ].map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 ${
               tab === t
                 ? "border-indigo-600 text-indigo-700"
                 : "border-transparent text-gray-500 hover:text-indigo-600"
             }`}
+            aria-label={`${t} tab`}
+            aria-selected={tab === t}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
           </button>
@@ -310,6 +319,18 @@ export default function CourseDetails() {
                 </table>
               </div>
             )}
+          </div>
+        )}
+
+        {tab === "performance" && user?.role === "teacher" && (
+          <PerformanceTab courseId={courseId} />
+        )}
+
+        {tab === "performance" && user?.role !== "teacher" && (
+          <div>
+            <p className="text-gray-500 italic">
+              Performance data is only available to teachers.
+            </p>
           </div>
         )}
       </div>

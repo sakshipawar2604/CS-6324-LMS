@@ -38,35 +38,47 @@ export default function DashboardLayout() {
             <>
               <NavLink
                 to="/admin/dashboard"
+                aria-label="Dashboard"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                🏠 Dashboard
+                <span className="text-lg" aria-hidden="true">
+                  🏠
+                </span>
+                Dashboard
               </NavLink>
 
               <NavLink
                 to="/admin/users"
+                aria-label="Manage Users"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                👥 Manage Users
+                <span className="text-lg" aria-hidden="true">
+                  👥
+                </span>
+                Manage Users
               </NavLink>
 
               <NavLink
                 to="/admin/courses"
+                aria-label="Manage Courses"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                📘 Manage Courses
+                <span className="text-lg" aria-hidden="true">
+                  📘
+                </span>
+                Manage Courses
               </NavLink>
             </>
           )}
@@ -76,24 +88,32 @@ export default function DashboardLayout() {
             <>
               <NavLink
                 to="/teacher/dashboard"
+                aria-label="Dashboard"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                🏠 Dashboard
+                <span className="text-lg" aria-hidden="true">
+                  🏠
+                </span>
+                Dashboard
               </NavLink>
 
               <NavLink
-                to="/teacher/dashboard"
+                to="/teacher/courses"
+                aria-label="My Courses"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                📘 My Courses
+                <span className="text-lg" aria-hidden="true">
+                  📘
+                </span>
+                My Courses
               </NavLink>
             </>
           )}
@@ -103,35 +123,47 @@ export default function DashboardLayout() {
             <>
               <NavLink
                 to="/student/dashboard"
+                aria-label="Dashboard"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                🏠 Dashboard
+                <span className="text-lg" aria-hidden="true">
+                  🏠
+                </span>
+                Dashboard
               </NavLink>
 
               <NavLink
                 to="/student/dashboard"
+                aria-label="My Courses"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                🎓 My Courses
+                <span className="text-lg" aria-hidden="true">
+                  🎓
+                </span>
+                My Courses
               </NavLink>
 
               <NavLink
                 to="/student/assignments"
+                aria-label="Assignments"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
                     isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
                   }`
                 }
               >
-                🧾 Assignments
+                <span className="text-lg" aria-hidden="true">
+                  🧾
+                </span>
+                Assignments
               </NavLink>
             </>
           )}

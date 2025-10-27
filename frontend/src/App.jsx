@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
+import TeacherCourses from "./pages/TeacherCourses";
 import StudentDashboard from "./pages/StudentDashboard";
 import CourseDetails from "./pages/CourseDetails";
 import ManageUsers from "./pages/ManageUsers";
@@ -29,6 +30,7 @@ export default function App() {
       {/* Teacher routes */}
       <Route path="/teacher" element={<DashboardLayout />}>
         <Route path="dashboard" element={<TeacherDashboard />} />
+        <Route path="courses" element={<TeacherCourses />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />
       </Route>
 

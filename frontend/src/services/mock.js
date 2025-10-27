@@ -55,6 +55,40 @@ export function setupMocks() {
     total_enrollments: 340,
   });
 
+  // ---- TEACHER COURSES (for TeacherCourses page) ----
+  mock.onGet("/teacher/courses").reply(200, [
+    {
+      id: "CSE101",
+      title: "Introduction to Computer Science",
+      description:
+        "Fundamentals of algorithms, data structures, and programming.",
+      students_enrolled: 45,
+      created_at: "2025-01-10",
+    },
+    {
+      id: "CSE202",
+      title: "Database Systems",
+      description: "Relational models, SQL, and schema design.",
+      students_enrolled: 52,
+      created_at: "2025-02-18",
+    },
+    {
+      id: "CSE305",
+      title: "Operating Systems",
+      description:
+        "Threads, processes, memory management, and scheduling concepts.",
+      students_enrolled: 40,
+      created_at: "2025-01-25",
+    },
+    {
+      id: "CSE404",
+      title: "Software Engineering",
+      description: "Agile development, design patterns, and project planning.",
+      students_enrolled: 48,
+      created_at: "2025-02-05",
+    },
+  ]);
+
   // ---- TEACHER DASHBOARD ----
   mock.onGet(/\/courses(\?.*)?$/).reply((config) => {
     console.log("Mock hit:", config.url); // added this to verify
@@ -427,6 +461,77 @@ export function setupMocks() {
     newEnrollment.enrollment_date = new Date().toISOString().split("T")[0];
     console.log("🎓 Mock enrollment added:", newEnrollment);
     return [201, newEnrollment];
+  });
+
+  // ---- TEACHER PERFORMANCE ----
+  mock.onGet("/teacher/performance").reply(200, [
+    {
+      course_id: "CSE101",
+      course_title: "Introduction to Computer Science",
+      average_grade: 84,
+      below_threshold: 3,
+    },
+    {
+      course_id: "CSE202",
+      course_title: "Database Systems",
+      average_grade: 68,
+      below_threshold: 5,
+    },
+    {
+      course_id: "CSE303",
+      course_title: "Data Structures and Algorithms",
+      average_grade: 91,
+      below_threshold: 1,
+    },
+  ]);
+
+  // ---- TEACHER COURSE PERFORMANCE (per student) ----
+  mock.onGet(/\/teacher\/courses\/.*\/performance/).reply((config) => {
+    const courseId = config.url.split("/")[3];
+    const mockData = {
+      CSE101: [
+        { student_name: "Alice Johnson", average_grade: 92 },
+        { student_name: "Bob Brown", average_grade: 68 },
+        { student_name: "Charlie White", average_grade: 55 },
+        { student_name: "Diana Lee", average_grade: 78 },
+      ],
+      CSE202: [
+        { student_name: "Eva Parker", average_grade: 85 },
+        { student_name: "Frank Stone", average_grade: 62 },
+        { student_name: "George Hall", average_grade: 73 },
+      ],
+    };
+    return [200, mockData[courseId] || []];
+  });
+
+  // ---- COURSE PERFORMANCE (for CourseDetails tab) ----
+  mock.onGet(/\/courses\/CSE[0-9]+\/performance/).reply((config) => {
+    const courseId = config.url.match(/\/courses\/(CSE\d+)\/performance/)?.[1];
+
+    const mockPerformanceData = {
+      CSE101: {
+        average_grade: 84,
+        total_students: 45,
+        below_threshold: 3,
+        above_threshold: 42,
+      },
+      CSE202: {
+        average_grade: 68,
+        total_students: 52,
+        below_threshold: 5,
+        above_threshold: 47,
+      },
+    };
+
+    return [
+      200,
+      mockPerformanceData[courseId] || {
+        average_grade: 0,
+        total_students: 0,
+        below_threshold: 0,
+        above_threshold: 0,
+      },
+    ];
   });
 
   // fallback: let any unmatched request pass through (to real backend if running)
