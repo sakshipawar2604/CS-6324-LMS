@@ -331,12 +331,11 @@ export default function CourseDetails() {
         )}
 
         {tab === "performance" &&
-          (role === "teacher" ? (
-            <PerformanceTab courseId={courseId} />
-          ) : role === "student" ? (
-            <CoursePerformanceStudent
+          (role === "teacher" || role === "student" ? (
+            <PerformanceTab
               courseId={courseId}
               studentId={studentId}
+              role={role}
             />
           ) : (
             <div>
