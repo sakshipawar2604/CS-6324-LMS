@@ -571,6 +571,46 @@ export function setupMocks() {
     return [200, studentCourses];
   });
 
+  // ---- STUDENT COURSE PERFORMANCE (per student, per course) ----
+  mock.onGet(/\/student\/performance\/[^/]+\/[^/]+$/).reply(() => {
+    return [
+      200,
+      {
+        avg_grade: 68,
+        assignments: [
+          { assignment_id: "A101", title: "Sorting Algorithms", grade: 75 },
+          { assignment_id: "A102", title: "Graph Traversal", grade: 62 },
+          { assignment_id: "A103", title: "Dynamic Programming", grade: 65 },
+        ],
+      },
+    ];
+  });
+
+  // ---- STUDENT AI RECOMMENDATIONS (course-specific) ----
+  mock.onGet(/\/student\/recommendations\/[^/]+\/[^/]+$/).reply(() => {
+    return [
+      200,
+      [
+        {
+          topic: "Graph Algorithms",
+          resource_title: "Introduction to Graphs (YouTube)",
+          type: "video",
+          confidence: 0.9,
+          reason: "Based on low score in 'Graph Traversal'",
+          url: "https://example.com/intro-graphs-video",
+        },
+        {
+          topic: "Dynamic Programming",
+          resource_title: "DP Basics – PDF",
+          type: "document",
+          confidence: 0.86,
+          reason: "Practice needed for recursion & memoization",
+          url: "https://example.com/dp-basics.pdf",
+        },
+      ],
+    ];
+  });
+
   // fallback: let any unmatched request pass through (to real backend if running)
   mock.onAny().passThrough();
 }

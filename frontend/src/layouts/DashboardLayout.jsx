@@ -2,6 +2,13 @@ import { Outlet, useNavigate, NavLink } from "react-router-dom";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import SkipToMain from "../components/SkipToMain";
+import {
+  LayoutDashboard,
+  BookOpen,
+  Users,
+  LogOut,
+  GraduationCap,
+} from "lucide-react";
 
 export default function DashboardLayout() {
   const navigate = useNavigate();
@@ -45,9 +52,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  🏠
-                </span>
+                <LayoutDashboard className="w-5 h-5" aria-hidden="true" />
                 Dashboard
               </NavLink>
 
@@ -60,9 +65,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  👥
-                </span>
+                <Users className="w-5 h-5" aria-hidden="true" />
                 Manage Users
               </NavLink>
 
@@ -75,9 +78,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  📘
-                </span>
+                <BookOpen className="w-5 h-5" aria-hidden="true" />
                 Manage Courses
               </NavLink>
             </>
@@ -95,9 +96,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  🏠
-                </span>
+                <LayoutDashboard className="w-5 h-5" aria-hidden="true" />
                 Dashboard
               </NavLink>
 
@@ -110,9 +109,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  📘
-                </span>
+                <BookOpen className="w-5 h-5" aria-hidden="true" />
                 My Courses
               </NavLink>
             </>
@@ -130,9 +127,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  🏠
-                </span>
+                <LayoutDashboard className="w-5 h-5" aria-hidden="true" />
                 Dashboard
               </NavLink>
 
@@ -145,9 +140,7 @@ export default function DashboardLayout() {
                   }`
                 }
               >
-                <span className="text-lg" aria-hidden="true">
-                  🎓
-                </span>
+                <GraduationCap className="w-5 h-5" aria-hidden="true" />
                 My Courses
               </NavLink>
             </>
@@ -159,8 +152,9 @@ export default function DashboardLayout() {
           <button
             onClick={handleLogout}
             aria-label="Logout"
-            className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 mt-6 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700"
+            className="w-full bg-indigo-500 hover:bg-indigo-600 py-2 mt-6 rounded-lg font-semibold focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-indigo-700 flex items-center justify-center gap-2"
           >
+            <LogOut className="w-5 h-5" aria-hidden="true" />
             Logout
           </button>
         </div>

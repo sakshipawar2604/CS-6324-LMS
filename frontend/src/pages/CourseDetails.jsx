@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import api from "../services/http";
 import toast from "react-hot-toast";
@@ -7,6 +7,7 @@ import SubmitAssignmentModal from "../components/SubmitAssignmentModal";
 import AssignmentSubmissionsModal from "../components/AssignmentSubmissionsModal";
 import UploadResourceModal from "../components/UploadResourceModal";
 import PerformanceTab from "../components/PerformanceTab";
+import CoursePerformanceStudent from "../components/CoursePerformanceStudent";
 
 export default function CourseDetails() {
   const { courseId } = useParams();
@@ -20,6 +21,13 @@ export default function CourseDetails() {
   const [showForm, setShowForm] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
+
+  // Get current user info
+  const raw = localStorage.getItem("user");
+  const currentUser = useMemo(() => (raw ? JSON.parse(raw) : null), [raw]);
+  const role = currentUser?.role;
+  const studentId =
+    currentUser?.user?.user_id || currentUser?.user?.id || "STU001";
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
@@ -322,17 +330,21 @@ export default function CourseDetails() {
           </div>
         )}
 
-        {tab === "performance" && user?.role === "teacher" && (
-          <PerformanceTab courseId={courseId} />
-        )}
-
-        {tab === "performance" && user?.role !== "teacher" && (
-          <div>
-            <p className="text-gray-500 italic">
-              Performance data is only available to teachers.
-            </p>
-          </div>
-        )}
+        {tab === "performance" &&
+          (role === "teacher" ? (
+            <PerformanceTab courseId={courseId} />
+          ) : role === "student" ? (
+            <CoursePerformanceStudent
+              courseId={courseId}
+              studentId={studentId}
+            />
+          ) : (
+            <div>
+              <p className="text-gray-500 italic">
+                Performance data not available for this role.
+              </p>
+            </div>
+          ))}
       </div>
     </div>
   );
