@@ -4,6 +4,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherCourses from "./pages/TeacherCourses";
 import StudentDashboard from "./pages/StudentDashboard";
+import StudentCourses from "./pages/StudentCourses";
 import CourseDetails from "./pages/CourseDetails";
 import ManageUsers from "./pages/ManageUsers";
 import ManageCourses from "./pages/ManageCourses";
@@ -37,6 +38,7 @@ export default function App() {
       {/* Student routes */}
       <Route path="/student" element={<DashboardLayout />}>
         <Route path="dashboard" element={<StudentDashboard />} />
+        <Route path="courses" element={<StudentCourses />} />
         <Route path="courses/:courseId" element={<CourseDetails />} />
       </Route>
 

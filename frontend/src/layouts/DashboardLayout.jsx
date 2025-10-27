@@ -137,7 +137,7 @@ export default function DashboardLayout() {
               </NavLink>
 
               <NavLink
-                to="/student/dashboard"
+                to="/student/courses"
                 aria-label="My Courses"
                 className={({ isActive }) =>
                   `flex items-center gap-2 px-3 py-2 rounded ${
@@ -149,21 +149,6 @@ export default function DashboardLayout() {
                   🎓
                 </span>
                 My Courses
-              </NavLink>
-
-              <NavLink
-                to="/student/assignments"
-                aria-label="Assignments"
-                className={({ isActive }) =>
-                  `flex items-center gap-2 px-3 py-2 rounded ${
-                    isActive ? "bg-indigo-600" : "hover:bg-indigo-600"
-                  }`
-                }
-              >
-                <span className="text-lg" aria-hidden="true">
-                  🧾
-                </span>
-                Assignments
               </NavLink>
             </>
           )}

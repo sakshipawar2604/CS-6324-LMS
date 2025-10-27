@@ -55,6 +55,25 @@ export function setupMocks() {
     total_enrollments: 340,
   });
 
+  // ---- STUDENT COURSES (for StudentCourses page) ----
+  mock.onGet(/\/student\/courses\?studentId=.*/).reply(() => {
+    const enrolledCourses = [
+      {
+        course_id: "CSE101",
+        title: "Introduction to Computer Science",
+        instructor: "Dr. John Smith",
+        enrolled_on: "2025-08-15T09:00:00Z",
+      },
+      {
+        course_id: "CSE202",
+        title: "Database Systems",
+        instructor: "Dr. Jane Doe",
+        enrolled_on: "2025-09-01T09:00:00Z",
+      },
+    ];
+    return [200, enrolledCourses];
+  });
+
   // ---- TEACHER COURSES (for TeacherCourses page) ----
   mock.onGet("/teacher/courses").reply(200, [
     {
@@ -532,6 +551,24 @@ export function setupMocks() {
         above_threshold: 0,
       },
     ];
+  });
+
+  mock.onGet(/\/student\/courses\?studentId=.*/).reply(() => {
+    const studentCourses = [
+      {
+        course_id: "CSE101",
+        title: "Introduction to Computer Science",
+        instructor: "Prof. Alice Johnson",
+        enrolled_on: "2025-08-15",
+      },
+      {
+        course_id: "DB202",
+        title: "Database Systems",
+        instructor: "Prof. Bob Brown",
+        enrolled_on: "2025-09-01",
+      },
+    ];
+    return [200, studentCourses];
   });
 
   // fallback: let any unmatched request pass through (to real backend if running)
