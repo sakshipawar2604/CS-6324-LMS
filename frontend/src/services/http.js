@@ -1,17 +1,17 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080", // Spring Boot later
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api",
   withCredentials: false,
   headers: { "Content-Type": "application/json" },
 });
 
-// attach JWT when available
+// Attach JWT from localStorage
 api.interceptors.request.use((config) => {
-  const raw = localStorage.getItem("user");
-  if (raw) {
-    const { token } = JSON.parse(raw) || {};
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+  // We now store token directly, not inside "user"
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });

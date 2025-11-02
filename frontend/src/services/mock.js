@@ -13,38 +13,38 @@ export function setupMocks() {
   const mock = new MockAdapter(api, { delayResponse: 400 }); // small delay to feel real
 
   // ---- AUTH ----
-  mock.onPost("/auth/login").reply((config) => {
-    try {
-      const body = JSON.parse(config.data || "{}");
-      const { email, password } = body || {};
-      const found = authData.users.find(
-        (u) => u.email === email && u.password === password
-      );
-      if (!found) {
-        return [401, { message: "Invalid credentials" }];
-      }
-      const token = authData.tokens[found.role] || "mock-jwt";
-      return [
-        200,
-        {
-          token,
-          role: found.role,
-          user: {
-            user_id:
-              found.role === "admin"
-                ? "admin_001"
-                : found.role === "teacher"
-                ? "teacher_001"
-                : "student_001",
-            email: found.email,
-            name: found.role.toUpperCase() + " User",
-          },
-        },
-      ];
-    } catch {
-      return [400, { message: "Bad request" }];
-    }
-  });
+  // mock.onPost("/auth/login").reply((config) => {
+  //   try {
+  //     const body = JSON.parse(config.data || "{}");
+  //     const { email, password } = body || {};
+  //     const found = authData.users.find(
+  //       (u) => u.email === email && u.password === password
+  //     );
+  //     if (!found) {
+  //       return [401, { message: "Invalid credentials" }];
+  //     }
+  //     const token = authData.tokens[found.role] || "mock-jwt";
+  //     return [
+  //       200,
+  //       {
+  //         token,
+  //         role: found.role,
+  //         user: {
+  //           user_id:
+  //             found.role === "admin"
+  //               ? "admin_001"
+  //               : found.role === "teacher"
+  //               ? "teacher_001"
+  //               : "student_001",
+  //           email: found.email,
+  //           name: found.role.toUpperCase() + " User",
+  //         },
+  //       },
+  //     ];
+  //   } catch {
+  //     return [400, { message: "Bad request" }];
+  //   }
+  // });
 
   // ---- ADMIN DASHBOARD METRICS ----
   mock.onGet("/admin/metrics").reply(200, {
