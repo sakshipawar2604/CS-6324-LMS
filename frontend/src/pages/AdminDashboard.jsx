@@ -22,7 +22,6 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        // Fetch all concurrently
         const [usersRes, coursesRes, enrollmentsRes] = await Promise.all([
           api.get("/users"),
           api.get("/courses"),
@@ -33,11 +32,9 @@ export default function AdminDashboard() {
         const courses = coursesRes.data || [];
         const enrollments = enrollmentsRes.data || [];
 
-        // Filter by role
         const teachers = users.filter((u) => u.role?.roleId === 2);
         const students = users.filter((u) => u.role?.roleId === 3);
 
-        // Build metrics
         setMetrics({
           total_users: users.length,
           total_teachers: teachers.length,
@@ -59,7 +56,9 @@ export default function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500 animate-pulse">Loading metrics...</p>
+        <p className="text-gray-500 animate-pulse text-lg font-medium">
+          Loading metrics...
+        </p>
       </div>
     );
   }
@@ -69,72 +68,125 @@ export default function AdminDashboard() {
       label: "Total Users",
       value: metrics.total_users,
       icon: UserCircle2,
-      color: "from-indigo-500 to-indigo-700",
+      color: "from-indigo-500/90 to-indigo-700/90",
+      accent: "text-indigo-300",
     },
     {
       label: "Total Teachers",
       value: metrics.total_teachers,
       icon: UserCog,
-      color: "from-blue-500 to-blue-700",
+      color: "from-blue-500/90 to-blue-700/90",
+      accent: "text-blue-300",
     },
     {
       label: "Total Students",
       value: metrics.total_students,
       icon: GraduationCap,
-      color: "from-green-500 to-green-700",
+      color: "from-green-500/90 to-green-700/90",
+      accent: "text-green-300",
     },
     {
       label: "Total Courses",
       value: metrics.total_courses,
       icon: BookOpen,
-      color: "from-purple-500 to-purple-700",
+      color: "from-purple-500/90 to-purple-700/90",
+      accent: "text-purple-300",
     },
     {
       label: "Total Enrollments",
       value: metrics.total_enrollments,
       icon: Layers,
-      color: "from-pink-500 to-pink-700",
+      color: "from-pink-500/90 to-pink-700/90",
+      accent: "text-pink-300",
     },
   ];
 
   return (
     <div className="space-y-10">
       {/* Header */}
-      <header>
-        <h1 className="text-2xl font-bold text-indigo-700">Admin Dashboard</h1>
+      <header className="text-center mb-8">
+        <h1 className="text-3xl font-bold text-indigo-700 mb-1">
+          Admin Dashboard
+        </h1>
         <p className="text-gray-500">
-          Overview of users, courses, and enrollments
+          Real-time overview of users, courses, and enrollments
         </p>
       </header>
 
       {/* Metrics grid */}
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl mx-auto px-4">
         <div
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
           role="list"
           aria-label="Dashboard metrics"
         >
-          {cards.map(({ label, value, icon: Icon, color }) => (
+          {cards.map(({ label, value, icon: Icon, color, accent }) => (
             <article
               key={label}
               role="listitem"
               aria-label={`${label}: ${value}`}
-              className={`rounded-xl shadow-lg bg-gradient-to-br ${color} text-white p-6 flex flex-col justify-between hover:scale-105 transition-transform focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2`}
               tabIndex={0}
+              className={`relative rounded-2xl bg-gradient-to-br ${color} 
+              text-white p-6 backdrop-blur-lg shadow-lg
+              flex flex-col justify-between border border-white/10
+              hover:scale-105 hover:shadow-2xl hover:border-white/30 transition-all duration-300
+              focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2`}
             >
+              {/* Soft glow behind icon */}
+              <div className="absolute -top-3 -right-3 w-20 h-20 bg-white/10 rounded-full blur-2xl opacity-50 pointer-events-none"></div>
+
               <div className="flex items-center justify-between mb-4">
-                <Icon size={40} strokeWidth={2} aria-hidden="true" />
+                <Icon
+                  size={42}
+                  strokeWidth={2.5}
+                  className={`${accent} drop-shadow-lg`}
+                  aria-hidden="true"
+                />
               </div>
+
               <div>
-                <p className="text-5xl font-extrabold mb-2" aria-live="polite">
-                  {value}
+                <AnimatedCounter target={value} />
+                <p className="text-base font-medium opacity-90 mt-1 tracking-wide">
+                  {label}
                 </p>
-                <p className="text-base font-medium opacity-90">{label}</p>
               </div>
             </article>
           ))}
         </div>
       </div>
     </div>
+  );
+}
+
+/* Animated count-up effect */
+function AnimatedCounter({ target }) {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const end = target;
+    if (start === end) return;
+
+    const duration = 1000; // 1s
+    const stepTime = 20;
+    const totalSteps = duration / stepTime;
+    const increment = end / totalSteps;
+
+    const timer = setInterval(() => {
+      start += increment;
+      if (start >= end) {
+        start = end;
+        clearInterval(timer);
+      }
+      setCount(Math.floor(start));
+    }, stepTime);
+
+    return () => clearInterval(timer);
+  }, [target]);
+
+  return (
+    <p className="text-5xl font-extrabold mb-2 tracking-tight drop-shadow-md">
+      {count.toLocaleString()}
+    </p>
   );
 }
