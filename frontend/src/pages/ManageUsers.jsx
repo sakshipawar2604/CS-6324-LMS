@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../services/http";
 import toast from "react-hot-toast";
+import { useLocation } from "react-router-dom";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
@@ -17,10 +18,23 @@ export default function ManageUsers() {
   });
 
   // Fetch all users
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const roleFilter = searchParams.get("filter"); // e.g., "teacher" or "student"
+
   const fetchUsers = async () => {
     try {
       const res = await api.get("/users");
-      setUsers(res.data);
+      let data = res.data || [];
+
+      // Filter if query param exists
+      if (roleFilter === "teacher") {
+        data = data.filter((u) => u.role?.roleId === 2);
+      } else if (roleFilter === "student") {
+        data = data.filter((u) => u.role?.roleId === 3);
+      }
+
+      setUsers(data);
     } catch (err) {
       console.error("Failed to load users", err);
       toast.error("Failed to load users");
@@ -29,9 +43,10 @@ export default function ManageUsers() {
     }
   };
 
+  // Re-fetch whenever URL query changes
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [roleFilter]);
 
   // Open modal (create or edit)
   const openModal = (user = null) => {

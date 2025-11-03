@@ -29,7 +29,8 @@ export default function TeacherCourses() {
           if (!c) continue;
 
           // If you want to strictly show only this teacher's courses (when you know the teacher id):
-          if (currentTeacherId && c.createdBy?.userId !== currentTeacherId) continue;
+          if (currentTeacherId && c.createdBy?.userId !== currentTeacherId)
+            continue;
 
           const key = c.courseId;
           if (!map.has(key)) {
@@ -57,7 +58,9 @@ export default function TeacherCourses() {
         }));
 
         // newest first (optional)
-        rows.sort((a, b) => (b.created_at || "").localeCompare(a.created_at || ""));
+        rows.sort((a, b) =>
+          (b.created_at || "").localeCompare(a.created_at || "")
+        );
 
         setCourses(rows);
       } catch (err) {
@@ -140,9 +143,7 @@ export default function TeacherCourses() {
                   </td>
                   <td className="py-2 px-4">
                     <button
-                      onClick={() =>
-                        navigate(`/teacher/courses/${course.id}`)
-                      }
+                      onClick={() => navigate(`/teacher/courses/${course.id}`)}
                       className="bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                       aria-label={`Open details for ${course.title}`}
                     >
