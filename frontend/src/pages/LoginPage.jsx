@@ -47,35 +47,6 @@ export default function Login() {
   //   }
   // };
 
-  // const onSubmit = async (data) => {
-  //   try {
-  //     const res = await api.post("/auth/login", data);
-
-  //     const token = res.data.token;
-  //     if (!token) throw new Error("Token missing from response");
-
-  //     // Store token for future API calls
-  //     localStorage.setItem("token", token);
-
-  //     // Temporary static role (until backend sends one)
-  //     const role = import.meta.env.VITE_STATIC_ROLE || "student";
-
-  //     // Also store role locally (so we can use it for routing)
-  //     localStorage.setItem("role", role);
-
-  //     toast.success("Login successful");
-
-  //     // Navigate based on static role
-  //     if (role === "admin") navigate("/admin/dashboard");
-  //     else if (role === "teacher") navigate("/teacher/dashboard");
-  //     else navigate("/student/dashboard");
-
-  //     reset();
-  //   } catch (err) {
-  //     toast.error(err.response?.data?.message || "Incorrect credentials");
-  //   }
-  // };
-
   const onSubmit = async (data) => {
     try {
       const res = await api.post("/auth/login", data);
@@ -86,18 +57,16 @@ export default function Login() {
       // Temporary static role until backend returns one
       const role = import.meta.env.VITE_STATIC_ROLE || "student";
 
-      // Construct a consistent 'user' object
-      const user = {
-        token, // keep token for auth header
-        role, // role for routing
-        user: {
-          email: data.email, // email entered in the form
-          name: data.email.split("@")[0], // placeholder name (optional)
-        },
+      // Construct user profile object (without token)
+      const userProfile = {
+        role,
+        email: data.email,
+        name: data.email.split("@")[0],
       };
 
-      // Store entire user object — so all layouts keep working
-      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", token);
+
+      localStorage.setItem("user", JSON.stringify(userProfile));
 
       toast.success("Login successful");
 

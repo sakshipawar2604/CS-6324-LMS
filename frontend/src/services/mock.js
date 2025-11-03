@@ -108,55 +108,55 @@ export function setupMocks() {
     },
   ]);
 
-  // ---- TEACHER DASHBOARD ----
-  mock.onGet(/\/courses(\?.*)?$/).reply((config) => {
-    console.log("Mock hit:", config.url); // added this to verify
+  // // ---- TEACHER DASHBOARD ----
+  // mock.onGet(/\/courses(\?.*)?$/).reply((config) => {
+  //   console.log("Mock hit:", config.url); // added this to verify
 
-    // Parses the teacherId from query params
-    const url = new URL(config.url, "http://localhost");
-    const teacherId = url.searchParams.get("teacherId");
+  //   // Parses the teacherId from query params
+  //   const url = new URL(config.url, "http://localhost");
+  //   const teacherId = url.searchParams.get("teacherId");
 
-    console.log("Teacher ID from request:", teacherId); // Debug log
+  //   console.log("Teacher ID from request:", teacherId); // Debug log
 
-    // Only returns courses for teachers (not admins/students)
-    if (teacherId && teacherId.startsWith("teacher_")) {
-      const exampleCourses = [
-        {
-          course_id: "CSE101",
-          title: "Introduction to Computer Science",
-          description:
-            "Fundamentals of algorithms, data structures, and programming.",
-          studentCount: 45,
-        },
-        {
-          course_id: "CSE202",
-          title: "Database Systems",
-          description:
-            "Learn SQL, normalization, and relational database design.",
-          studentCount: 38,
-        },
-        {
-          course_id: "CSE305",
-          title: "Operating Systems",
-          description:
-            "Threads, processes, memory management, and scheduling concepts.",
-          studentCount: 40,
-        },
-        {
-          course_id: "CSE404",
-          title: "Software Engineering",
-          description:
-            "Agile development, design patterns, and project planning.",
-          studentCount: 52,
-        },
-      ];
+  //   // Only returns courses for teachers (not admins/students)
+  //   if (teacherId && teacherId.startsWith("teacher_")) {
+  //     const exampleCourses = [
+  //       {
+  //         course_id: "CSE101",
+  //         title: "Introduction to Computer Science",
+  //         description:
+  //           "Fundamentals of algorithms, data structures, and programming.",
+  //         studentCount: 45,
+  //       },
+  //       {
+  //         course_id: "CSE202",
+  //         title: "Database Systems",
+  //         description:
+  //           "Learn SQL, normalization, and relational database design.",
+  //         studentCount: 38,
+  //       },
+  //       {
+  //         course_id: "CSE305",
+  //         title: "Operating Systems",
+  //         description:
+  //           "Threads, processes, memory management, and scheduling concepts.",
+  //         studentCount: 40,
+  //       },
+  //       {
+  //         course_id: "CSE404",
+  //         title: "Software Engineering",
+  //         description:
+  //           "Agile development, design patterns, and project planning.",
+  //         studentCount: 52,
+  //       },
+  //     ];
 
-      return [200, exampleCourses];
-    }
+  //     return [200, exampleCourses];
+  //   }
 
-    // Return's empty array for non-teachers or invalid teacher IDs
-    return [200, []];
-  });
+  //   // Return's empty array for non-teachers or invalid teacher IDs
+  //   return [200, []];
+  // });
 
   // ---- STUDENT DASHBOARD ----
 
@@ -400,63 +400,63 @@ export function setupMocks() {
   // ---- ADMIN COURSES MANAGEMENT ----
 
   // Get all courses
-  mock.onGet("/admin/courses").reply(200, [
-    {
-      course_id: "CSE101",
-      title: "Introduction to Computer Science",
-      description:
-        "Fundamentals of algorithms, data structures, and programming.",
-      created_by: "John Doe",
-      created_at: "2025-01-15",
-    },
-    {
-      course_id: "CSE201",
-      title: "Database Systems",
-      description: "Relational models, SQL queries, and schema design.",
-      created_by: "Rahul Mehta",
-      created_at: "2025-02-10",
-    },
-    {
-      course_id: "CSE301",
-      title: "Operating Systems",
-      description: "Threads, processes, memory management, and scheduling.",
-      created_by: "Alice Smith",
-      created_at: "2025-02-20",
-    },
-  ]);
+  // mock.onGet("/admin/courses").reply(200, [
+  //   {
+  //     course_id: "CSE101",
+  //     title: "Introduction to Computer Science",
+  //     description:
+  //       "Fundamentals of algorithms, data structures, and programming.",
+  //     created_by: "John Doe",
+  //     created_at: "2025-01-15",
+  //   },
+  //   {
+  //     course_id: "CSE201",
+  //     title: "Database Systems",
+  //     description: "Relational models, SQL queries, and schema design.",
+  //     created_by: "Rahul Mehta",
+  //     created_at: "2025-02-10",
+  //   },
+  //   {
+  //     course_id: "CSE301",
+  //     title: "Operating Systems",
+  //     description: "Threads, processes, memory management, and scheduling.",
+  //     created_by: "Alice Smith",
+  //     created_at: "2025-02-20",
+  //   },
+  // ]);
 
-  // Add new course
-  mock.onPost("/admin/courses").reply((config) => {
-    const newCourse = JSON.parse(config.data);
-    const createdCourse = {
-      ...newCourse,
-      course_id: "CSE" + Math.floor(Math.random() * 1000),
-      created_at: new Date().toISOString().split("T")[0],
-    };
-    console.log("📘 Mock course added:", createdCourse);
-    return [201, createdCourse];
-  });
+  // // Add new course
+  // mock.onPost("/admin/courses").reply((config) => {
+  //   const newCourse = JSON.parse(config.data);
+  //   const createdCourse = {
+  //     ...newCourse,
+  //     course_id: "CSE" + Math.floor(Math.random() * 1000),
+  //     created_at: new Date().toISOString().split("T")[0],
+  //   };
+  //   console.log("📘 Mock course added:", createdCourse);
+  //   return [201, createdCourse];
+  // });
 
   // ========== ADMIN: Manage Courses ==========
 
   // Get all courses
-  mock.onGet("/admin/courses").reply(200, [
-    {
-      course_id: "CSE101",
-      title: "Introduction to Computer Science",
-      description:
-        "Fundamentals of algorithms, data structures, and programming.",
-      created_by: "John Doe",
-      created_at: "2025-01-15",
-    },
-    {
-      course_id: "CSE201",
-      title: "Database Systems",
-      description: "Relational models, SQL queries, and schema design.",
-      created_by: "Rahul Mehta",
-      created_at: "2025-02-10",
-    },
-  ]);
+  // mock.onGet("/admin/courses").reply(200, [
+  //   {
+  //     course_id: "CSE101",
+  //     title: "Introduction to Computer Science",
+  //     description:
+  //       "Fundamentals of algorithms, data structures, and programming.",
+  //     created_by: "John Doe",
+  //     created_at: "2025-01-15",
+  //   },
+  //   {
+  //     course_id: "CSE201",
+  //     title: "Database Systems",
+  //     description: "Relational models, SQL queries, and schema design.",
+  //     created_by: "Rahul Mehta",
+  //     created_at: "2025-02-10",
+  //   },
+  // ]);
 
   // ---- ADMIN ENROLLMENTS MANAGEMENT ----
   mock.onGet("/admin/enrollments").reply(200, [

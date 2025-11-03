@@ -4,35 +4,40 @@ import toast from "react-hot-toast";
 
 export default function ManageCourses() {
   const [courses, setCourses] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [teachers, setTeachers] = useState([]);
-  const [newCourse, setNewCourse] = useState({
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  // Modal form state
+  const [formData, setFormData] = useState({
     title: "",
     description: "",
-    created_by: "",
+    createdBy: "",
   });
 
   // Fetch all courses
   const fetchCourses = async () => {
     try {
-      const res = await api.get("/admin/courses");
+      const res = await api.get("/courses");
       setCourses(res.data);
     } catch (err) {
+      console.error(err);
       toast.error("Failed to load courses");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch teacher list for dropdown
+  // Fetch teacher list
   const fetchTeachers = async () => {
     try {
-      const res = await api.get("/admin/users"); // same mock list
-      const onlyTeachers = res.data.filter((u) => u.role === "Teacher");
+      const res = await api.get("/users"); // get all users
+      const onlyTeachers = res.data.filter((user) => user.role?.roleId === 2);
       setTeachers(onlyTeachers);
     } catch (err) {
       console.error("Failed to fetch teachers", err);
+      toast.error("Unable to load teacher list");
     }
   };
 
@@ -41,22 +46,76 @@ export default function ManageCourses() {
     fetchTeachers();
   }, []);
 
-  // Handle course creation
-  const handleCreateCourse = async (e) => {
+  // Handle open modal (for create or edit)
+  const openModal = (course = null) => {
+    setSelectedCourse(course);
+    if (course) {
+      setFormData({
+        title: course.title,
+        description: course.description,
+        createdBy: course.createdBy?.userId || "",
+      });
+    } else {
+      setFormData({ title: "", description: "", createdBy: "" });
+    }
+    setShowModal(true);
+  };
+
+  // Handle create or update course
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!newCourse.title || !newCourse.description || !newCourse.created_by) {
+
+    if (!formData.title || !formData.description || !formData.createdBy) {
       toast.error("Please fill all fields");
       return;
     }
 
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      createdBy: { userId: Number(formData.createdBy) },
+    };
+
     try {
-      const res = await api.post("/admin/courses", newCourse);
-      setCourses((prev) => [...prev, res.data]);
-      toast.success("Course created successfully!");
+      if (selectedCourse) {
+        await api.put(`/courses/${selectedCourse.courseId}`, payload);
+
+        await fetchCourses();
+
+        toast.success("Course updated successfully!");
+      } else {
+        await api.post("/courses", payload);
+
+        await fetchCourses();
+
+        toast.success("Course created successfully!");
+      }
+
+      // Reset modal + form
       setShowModal(false);
-      setNewCourse({ title: "", description: "", created_by: "" });
+      setSelectedCourse(null);
+      setFormData({ title: "", description: "", createdBy: "" });
     } catch (err) {
-      toast.error("Failed to create course");
+      console.error("Save failed:", err);
+      toast.error("Failed to save course");
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async () => {
+    if (!selectedCourse) return;
+
+    try {
+      await api.delete(`/courses/${selectedCourse.courseId}`);
+      setCourses((prev) =>
+        prev.filter((c) => c.courseId !== selectedCourse.courseId)
+      );
+      toast.success("Course deleted successfully!");
+      setShowModal(false);
+      setSelectedCourse(null);
+    } catch (err) {
+      console.error("Delete failed:", err);
+      toast.error("Failed to delete course");
     }
   };
 
@@ -75,13 +134,14 @@ export default function ManageCourses() {
 
   return (
     <div>
+      {/* Header */}
       <header className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-indigo-700">Manage Courses</h1>
           <p className="text-gray-500">View, create, and manage courses</p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => openModal(null)}
           aria-label="Add new course"
           className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
         >
@@ -121,14 +181,17 @@ export default function ManageCourses() {
             ) : (
               courses.map((course) => (
                 <tr
-                  key={course.course_id}
-                  className="border-t hover:bg-gray-50 transition"
+                  key={course.courseId}
+                  className="border-t hover:bg-gray-50 transition cursor-pointer"
+                  onClick={() => openModal(course)} // open edit modal
                 >
                   <td className="px-6 py-3 font-medium">{course.title}</td>
                   <td className="px-6 py-3">{course.description}</td>
-                  <td className="px-6 py-3">{course.created_by}</td>
                   <td className="px-6 py-3">
-                    {new Date(course.created_at).toLocaleDateString()}
+                    {course.createdBy?.fullName || "—"}
+                  </td>
+                  <td className="px-6 py-3">
+                    {new Date(course.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))
@@ -137,26 +200,22 @@ export default function ManageCourses() {
         </table>
       </div>
 
-      {/* Create Course Modal */}
+      {/* Modal (Create / Edit / Delete) */}
       {showModal && (
         <div
           className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50"
           role="dialog"
           aria-modal="true"
-          aria-labelledby="modal-title"
         >
           <div className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg">
-            <h2
-              id="modal-title"
-              className="text-xl font-semibold text-indigo-700 mb-4"
-            >
-              Create New Course
+            <h2 className="text-xl font-semibold text-indigo-700 mb-4">
+              {selectedCourse ? "Edit Course" : "Create New Course"}
             </h2>
 
             <form
-              onSubmit={handleCreateCourse}
+              onSubmit={handleSubmit}
               className="space-y-4"
-              aria-label="Create course form"
+              aria-label="Course form"
             >
               <div>
                 <label
@@ -168,9 +227,9 @@ export default function ManageCourses() {
                 <input
                   id="course-title"
                   type="text"
-                  value={newCourse.title}
+                  value={formData.title}
                   onChange={(e) =>
-                    setNewCourse({ ...newCourse, title: e.target.value })
+                    setFormData({ ...formData, title: e.target.value })
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
@@ -186,9 +245,9 @@ export default function ManageCourses() {
                 </label>
                 <textarea
                   id="course-description"
-                  value={newCourse.description}
+                  value={formData.description}
                   onChange={(e) =>
-                    setNewCourse({ ...newCourse, description: e.target.value })
+                    setFormData({ ...formData, description: e.target.value })
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
@@ -204,36 +263,47 @@ export default function ManageCourses() {
                 </label>
                 <select
                   id="course-teacher"
-                  value={newCourse.created_by}
+                  value={formData.createdBy}
                   onChange={(e) =>
-                    setNewCourse({ ...newCourse, created_by: e.target.value })
+                    setFormData({ ...formData, createdBy: e.target.value })
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
                 >
                   <option value="">Select a Teacher</option>
                   {teachers.map((t) => (
-                    <option key={t.email} value={t.name}>
-                      {t.name}
+                    <option key={t.userId} value={t.userId}>
+                      {t.fullName}
                     </option>
                   ))}
                 </select>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
-                >
-                  Create
-                </button>
+              <div className="flex justify-between pt-4">
+                {selectedCourse && (
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+                  >
+                    Delete
+                  </button>
+                )}
+                <div className="flex gap-3 ml-auto">
+                  <button
+                    type="button"
+                    onClick={() => setShowModal(false)}
+                    className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2"
+                  >
+                    {selectedCourse ? "Update" : "Create"}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

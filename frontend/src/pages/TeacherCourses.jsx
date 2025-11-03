@@ -11,7 +11,7 @@ export default function TeacherCourses() {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await api.get("/teacher/courses");
+        const res = await api.get("/courses");
         setCourses(res.data);
       } catch (err) {
         console.error("Error fetching courses:", err);
