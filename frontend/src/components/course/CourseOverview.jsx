@@ -3,9 +3,6 @@ import { Users, BookOpen, CalendarDays } from "lucide-react";
 export default function CourseOverview({ course, students }) {
   const teacherName = course.createdBy?.fullName || "Unknown Instructor";
   const enrolledCount = students.length;
-  const createdAt = course.createdAt
-    ? new Date(course.createdAt).toLocaleDateString()
-    : "N/A";
 
   return (
     <div className="space-y-5">

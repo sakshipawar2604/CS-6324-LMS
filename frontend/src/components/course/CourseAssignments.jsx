@@ -75,19 +75,20 @@ export default function CourseAssignments({
                   {/* Actions */}
                   <td className="py-3 px-4">
                     {role === "teacher" ? (
-                      <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-4">
                         <button
                           onClick={() => setViewingSubmissions(a)}
-                          className="text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-800"
                         >
                           View Submissions
                         </button>
+                        <span className="text-gray-300">|</span>
                         <button
                           onClick={() => {
                             setEditAssignment(a);
                             setShowForm(true);
                           }}
-                          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                          className="text-sm font-medium text-blue-600 hover:text-blue-800"
                         >
                           Edit
                         </button>

@@ -99,7 +99,7 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
               <th className="px-4 py-2 text-left">File</th>
               <th className="px-4 py-2 text-left">Grade</th>
               <th className="px-4 py-2 text-left">Feedback</th>
-              <th className="px-4 py-2 text-right">Action</th>
+              <th className="px-4 py-2 text-left">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -128,7 +128,7 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
                   {s.grade != null ? `${s.grade}/100` : "—"}
                 </td>
                 <td className="px-4 py-2">{s.feedback || "—"}</td>
-                <td className="px-4 py-2 text-right">
+                <td className="px-4 py-2">
                   <button
                     onClick={() => {
                       setGrading(s);
