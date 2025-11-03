@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import api from "../services/http";
 import toast from "react-hot-toast";
+import {
+  UserCircle2,
+  UserCog,
+  GraduationCap,
+  BookOpen,
+  Layers,
+} from "lucide-react";
 
 export default function AdminDashboard() {
   const [metrics, setMetrics] = useState(null);
@@ -41,31 +48,31 @@ export default function AdminDashboard() {
     {
       label: "Total Users",
       value: metrics.total_users ?? 0,
-      icon: "👥",
+      icon: UserCircle2,
       color: "from-indigo-500 to-indigo-700",
     },
     {
       label: "Total Teachers",
       value: metrics.total_teachers ?? 0,
-      icon: "🧑‍🏫",
+      icon: UserCog,
       color: "from-blue-500 to-blue-700",
     },
     {
       label: "Total Students",
       value: metrics.total_students ?? 0,
-      icon: "🎓",
+      icon: GraduationCap,
       color: "from-green-500 to-green-700",
     },
     {
       label: "Total Courses",
       value: metrics.total_courses ?? 0,
-      icon: "📘",
+      icon: BookOpen,
       color: "from-purple-500 to-purple-700",
     },
     {
       label: "Total Enrollments",
       value: metrics.total_enrollments ?? 0,
-      icon: "📚",
+      icon: Layers,
       color: "from-pink-500 to-pink-700",
     },
   ];
@@ -87,24 +94,22 @@ export default function AdminDashboard() {
           role="list"
           aria-label="Dashboard metrics"
         >
-          {cards.map((card) => (
+          {cards.map(({ label, value, icon: Icon, color }) => (
             <article
-              key={card.label}
+              key={label}
               role="listitem"
-              aria-label={`${card.label}: ${card.value}`}
-              className={`rounded-xl shadow-lg bg-gradient-to-br ${card.color} text-white p-6 flex flex-col justify-between hover:scale-105 transition-transform focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2`}
+              aria-label={`${label}: ${value}`}
+              className={`rounded-xl shadow-lg bg-gradient-to-br ${color} text-white p-6 flex flex-col justify-between hover:scale-105 transition-transform focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2`}
               tabIndex={0}
             >
               <div className="flex items-center justify-between mb-4">
-                <span className="text-4xl" aria-hidden="true">
-                  {card.icon}
-                </span>
+                <Icon size={40} strokeWidth={2} aria-hidden="true" />
               </div>
               <div>
                 <p className="text-5xl font-extrabold mb-2" aria-live="polite">
-                  {card.value}
+                  {value}
                 </p>
-                <p className="text-base font-medium opacity-90">{card.label}</p>
+                <p className="text-base font-medium opacity-90">{label}</p>
               </div>
             </article>
           ))}
