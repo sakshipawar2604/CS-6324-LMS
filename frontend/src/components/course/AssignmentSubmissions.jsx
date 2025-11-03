@@ -5,16 +5,23 @@ import api from "../../services/http";
 export default function AssignmentSubmissions({ assignment, onBack }) {
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [editing, setEditing] = useState(null);
+  const [grading, setGrading] = useState(null); // current submission being graded
   const [grade, setGrade] = useState("");
   const [feedback, setFeedback] = useState("");
 
+  // Fetch all submissions, then filter by assignment + course
   const fetchSubmissions = async () => {
     try {
-      const res = await api.get(
-        `/assignments/${assignment.assignmentId}/submissions`
+      const res = await api.get("/submissions");
+      const all = res.data || [];
+
+      const filtered = all.filter(
+        (s) =>
+          s.assignment?.assignmentId === assignment.assignmentId &&
+          s.assignment?.course?.courseId === assignment.course?.courseId
       );
-      setSubmissions(res.data || []);
+
+      setSubmissions(filtered);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch submissions");
@@ -23,24 +30,37 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
     }
   };
 
-  const handleGradeSubmit = async (submissionId) => {
+  const handleGradeSubmit = async (submission) => {
     try {
       const numericGrade = Number(grade);
       if (isNaN(numericGrade) || numericGrade < 0 || numericGrade > 100) {
         toast.error("Grade must be between 0 and 100");
         return;
       }
-      await api.post(`/submissions/${submissionId}/grade`, {
+
+      // Build updated payload based on your backend's expected format
+      const updatedSubmission = {
+        assignment: { assignmentId: submission.assignment.assignmentId },
+        student: { userId: submission.student.userId },
+        submissionUrl: submission.submissionUrl,
         grade: numericGrade,
-        feedback,
-      });
-      toast.success("Grade submitted successfully!");
-      setEditing(null);
+        feedback: feedback,
+      };
+
+      // ✅ PUT request
+      await api.put(
+        `/submissions/${submission.submissionId}`,
+        updatedSubmission
+      );
+
+      toast.success("Grade updated successfully!");
+      setGrading(null);
       setGrade("");
       setFeedback("");
       fetchSubmissions();
     } catch (err) {
-      toast.error("Failed to submit grade");
+      console.error(err);
+      toast.error("Failed to update grade");
     }
   };
 
@@ -85,16 +105,18 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
           <tbody>
             {submissions.map((s) => (
               <tr
-                key={s.submissionId || s.submission_id}
+                key={s.submissionId}
                 className="border-b hover:bg-indigo-50 transition"
               >
-                <td className="px-4 py-2">{s.studentName}</td>
+                <td className="px-4 py-2">{s.student?.fullName}</td>
                 <td className="px-4 py-2">
-                  {new Date(s.submittedAt).toLocaleDateString()}
+                  {s.submittedAt
+                    ? new Date(s.submittedAt).toLocaleDateString()
+                    : "—"}
                 </td>
                 <td className="px-4 py-2">
                   <a
-                    href={s.fileUrl}
+                    href={s.submissionUrl}
                     target="_blank"
                     rel="noreferrer"
                     className="text-indigo-600 hover:underline"
@@ -109,7 +131,7 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
                 <td className="px-4 py-2 text-right">
                   <button
                     onClick={() => {
-                      setEditing(s);
+                      setGrading(s);
                       setGrade(s.grade || "");
                       setFeedback(s.feedback || "");
                     }}
@@ -124,59 +146,65 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
         </table>
       )}
 
-      {/* Inline Grading Form */}
-      {editing && (
-        <div className="mt-6 p-4 border rounded-lg bg-gray-50">
-          <h3 className="text-md font-semibold text-indigo-700 mb-2">
-            Grade Submission - {editing.studentName}
-          </h3>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleGradeSubmit(editing.submissionId);
-            }}
-            className="space-y-3"
-          >
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">
-                Grade (0–100)
-              </label>
-              <input
-                type="number"
-                value={grade}
-                onChange={(e) => setGrade(e.target.value)}
-                min="0"
-                max="100"
-                className="border rounded-lg w-full px-3 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700 mb-1">
-                Feedback
-              </label>
-              <textarea
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                rows="2"
-                className="border rounded-lg w-full px-3 py-2 focus:ring-2 focus:ring-indigo-400"
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => setEditing(null)}
-                className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 rounded-md bg-indigo-600 text-white hover:bg-indigo-700"
-              >
-                Save Grade
-              </button>
-            </div>
-          </form>
+      {/* Grading Modal */}
+      {grading && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-indigo-700 mb-4">
+              Grade Submission - {grading.student?.fullName}
+            </h3>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleGradeSubmit(grading);
+              }}
+              className="space-y-4"
+            >
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Grade (0–100)
+                </label>
+                <input
+                  type="number"
+                  value={grade}
+                  onChange={(e) => setGrade(e.target.value)}
+                  min="0"
+                  max="100"
+                  className="border rounded-lg w-full px-3 py-2 focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 mb-1">
+                  Feedback
+                </label>
+                <textarea
+                  value={feedback}
+                  onChange={(e) => setFeedback(e.target.value)}
+                  rows="3"
+                  className="border rounded-lg w-full px-3 py-2 focus:ring-2 focus:ring-indigo-400"
+                  placeholder="Write feedback..."
+                />
+              </div>
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setGrading(null)}
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+                >
+                  Save Grade
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
