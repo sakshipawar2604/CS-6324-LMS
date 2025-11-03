@@ -159,7 +159,6 @@ export default function Login() {
               </div>
             )}
           </div>
-          \{" "}
           <button
             type="submit"
             disabled={isSubmitting}
@@ -168,24 +167,6 @@ export default function Login() {
             {isSubmitting ? "Signing in..." : "Sign In"}
           </button>
         </form>
-
-        <div className="mt-6 text-center text-xs text-gray-500">
-          <p>
-            Test Accounts:
-            <br />
-            <span className="text-gray-600 font-medium">
-              admin@lms.test / admin123
-            </span>
-            <br />
-            <span className="text-gray-600 font-medium">
-              teacher@lms.test / teacher123
-            </span>
-            <br />
-            <span className="text-gray-600 font-medium">
-              student@lms.test / student123
-            </span>
-          </p>
-        </div>
       </div>
     </main>
   );

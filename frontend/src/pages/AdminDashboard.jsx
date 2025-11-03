@@ -10,21 +10,49 @@ import {
 } from "lucide-react";
 
 export default function AdminDashboard() {
-  const [metrics, setMetrics] = useState(null);
+  const [metrics, setMetrics] = useState({
+    total_users: 0,
+    total_teachers: 0,
+    total_students: 0,
+    total_courses: 0,
+    total_enrollments: 0,
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMetrics = async () => {
       try {
-        const res = await api.get("/admin/metrics");
-        setMetrics(res.data);
+        // Fetch all concurrently
+        const [usersRes, coursesRes, enrollmentsRes] = await Promise.all([
+          api.get("/users"),
+          api.get("/courses"),
+          api.get("/enrollments"),
+        ]);
+
+        const users = usersRes.data || [];
+        const courses = coursesRes.data || [];
+        const enrollments = enrollmentsRes.data || [];
+
+        // Filter by role
+        const teachers = users.filter((u) => u.role?.roleId === 2);
+        const students = users.filter((u) => u.role?.roleId === 3);
+
+        // Build metrics
+        setMetrics({
+          total_users: users.length,
+          total_teachers: teachers.length,
+          total_students: students.length,
+          total_courses: courses.length,
+          total_enrollments: enrollments.length,
+        });
       } catch (err) {
-        console.error(err);
-        toast.error("Failed to fetch metrics");
+        console.error("Failed to fetch metrics", err);
+        toast.error("Failed to fetch dashboard data");
       } finally {
         setLoading(false);
       }
     };
+
     fetchMetrics();
   }, []);
 
@@ -36,42 +64,34 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!metrics) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500">No data available</p>
-      </div>
-    );
-  }
-
   const cards = [
     {
       label: "Total Users",
-      value: metrics.total_users ?? 0,
+      value: metrics.total_users,
       icon: UserCircle2,
       color: "from-indigo-500 to-indigo-700",
     },
     {
       label: "Total Teachers",
-      value: metrics.total_teachers ?? 0,
+      value: metrics.total_teachers,
       icon: UserCog,
       color: "from-blue-500 to-blue-700",
     },
     {
       label: "Total Students",
-      value: metrics.total_students ?? 0,
+      value: metrics.total_students,
       icon: GraduationCap,
       color: "from-green-500 to-green-700",
     },
     {
       label: "Total Courses",
-      value: metrics.total_courses ?? 0,
+      value: metrics.total_courses,
       icon: BookOpen,
       color: "from-purple-500 to-purple-700",
     },
     {
       label: "Total Enrollments",
-      value: metrics.total_enrollments ?? 0,
+      value: metrics.total_enrollments,
       icon: Layers,
       color: "from-pink-500 to-pink-700",
     },
