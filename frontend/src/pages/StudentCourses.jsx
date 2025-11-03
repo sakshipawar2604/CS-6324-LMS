@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/http";
+import toast from "react-hot-toast";
 
 export default function StudentCourses() {
   const [courses, setCourses] = useState([]);
@@ -8,19 +9,44 @@ export default function StudentCourses() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchCourses = async () => {
+    const fetchEnrollments = async () => {
       try {
-        // Mock call (replace with backend later)
-        const res = await api.get("/student/courses?studentId=STU001");
-        setCourses(res.data);
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const studentId = storedUser?.userId;
+
+        if (!studentId) {
+          toast.error("Student information missing. Please log in again.");
+          return;
+        }
+
+        // Fetch all enrollments
+        const res = await api.get("/enrollments");
+        const allEnrollments = res.data || [];
+
+        // Filter enrollments for the logged-in student
+        const myEnrollments = allEnrollments.filter(
+          (e) => e.student?.userId === studentId
+        );
+
+        // Map into clean course info for UI
+        const formattedCourses = myEnrollments.map((e) => ({
+          id: e.enrollmentId,
+          title: e.course?.title || "Untitled Course",
+          instructor: e.course?.createdBy?.fullName || "Unknown Instructor",
+          enrolledOn: e.enrolledAt,
+          courseId: e.course?.courseId,
+        }));
+
+        setCourses(formattedCourses);
       } catch (err) {
-        console.error("Failed to load student courses", err);
+        console.error("Failed to load student courses:", err);
+        toast.error("Unable to fetch your enrolled courses");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCourses();
+    fetchEnrollments();
   }, []);
 
   if (loading) {
@@ -44,7 +70,10 @@ export default function StudentCourses() {
         </p>
       ) : (
         <div className="bg-white rounded-2xl shadow overflow-hidden">
-          <table className="min-w-full text-left border-collapse">
+          <table
+            className="min-w-full text-left border-collapse"
+            aria-label="Enrolled courses table"
+          >
             <thead className="bg-indigo-600 text-white">
               <tr>
                 <th scope="col" className="px-6 py-3 font-medium">
@@ -56,7 +85,7 @@ export default function StudentCourses() {
                 <th scope="col" className="px-6 py-3 font-medium">
                   Enrolled On
                 </th>
-                <th scope="col" className="px-6 py-3 font-medium">
+                <th scope="col" className="px-6 py-3 font-medium text-center">
                   Action
                 </th>
               </tr>
@@ -64,22 +93,24 @@ export default function StudentCourses() {
             <tbody>
               {courses.map((course) => (
                 <tr
-                  key={course.course_id}
+                  key={course.id}
                   className="border-b hover:bg-indigo-50 transition"
                 >
                   <td className="px-6 py-4 text-indigo-700 font-semibold">
                     {course.title}
                   </td>
-                  <td className="px-6 py-4 text-gray-700">
-                    {course.instructor || "—"}
+                  <td className="px-6 py-3 text-gray-700">
+                    {course.instructor}
                   </td>
-                  <td className="px-6 py-4 text-gray-600">
-                    {new Date(course.enrolled_on).toLocaleDateString()}
+                  <td className="px-6 py-3 text-gray-600">
+                    {course.enrolledOn
+                      ? new Date(course.enrolledOn).toLocaleDateString()
+                      : "—"}
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-6 py-3 text-center">
                     <button
                       onClick={() =>
-                        navigate(`/student/courses/${course.course_id}`)
+                        navigate(`/student/courses/${course.courseId}`)
                       }
                       className="text-indigo-600 hover:text-indigo-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg px-3 py-1"
                     >
