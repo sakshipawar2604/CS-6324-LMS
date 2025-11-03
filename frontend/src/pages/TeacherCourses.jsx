@@ -144,7 +144,7 @@ export default function TeacherCourses() {
                   <td className="py-2 px-4">
                     <button
                       onClick={() => navigate(`/teacher/courses/${course.id}`)}
-                      className="bg-indigo-600 text-white px-3 py-1 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      className="px-3 py-1 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
                       aria-label={`Open details for ${course.title}`}
                     >
                       Open

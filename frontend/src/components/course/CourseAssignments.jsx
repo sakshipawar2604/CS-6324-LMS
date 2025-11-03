@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AssignmentForm from "../AssignmentForm";
 import SubmitAssignmentModal from "../SubmitAssignmentModal";
-import AssignmentSubmissionsModal from "../AssignmentSubmissionsModal";
+import AssignmentSubmissions from "./AssignmentSubmissions";
 
 export default function CourseAssignments({
   role,
@@ -11,6 +11,17 @@ export default function CourseAssignments({
 }) {
   const [showForm, setShowForm] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [viewingSubmissions, setViewingSubmissions] = useState(null);
+
+  // when teacher clicks "View Submissions" we render the submissions view
+  if (viewingSubmissions) {
+    return (
+      <AssignmentSubmissions
+        assignment={viewingSubmissions}
+        onBack={() => setViewingSubmissions(null)}
+      />
+    );
+  }
 
   return (
     <div>
@@ -35,61 +46,47 @@ export default function CourseAssignments({
           <table className="min-w-full text-sm">
             <thead className="bg-indigo-600 text-white">
               <tr>
-                <th className="py-2 px-3 text-left">Title</th>
-                <th className="py-2 px-3 text-left">Due Date</th>
-                <th className="py-2 px-3 text-left">Status</th>
-                {(role === "teacher" || role === "student") && (
-                  <th className="py-2 px-3 text-left">Action</th>
-                )}
+                <th className="py-2 px-4 text-left">Title</th>
+                <th className="py-2 px-4 text-left w-40">Due Date</th>
+                <th className="py-2 px-4 text-left w-44">Action</th>
               </tr>
             </thead>
             <tbody>
               {assignments.map((a) => (
                 <tr
-                  key={a.assignment_id || a.assignmentId}
+                  key={a.assignmentId || a.assignment_id}
                   className="border-b hover:bg-indigo-50 transition"
                 >
-                  <td className="py-2 px-3">{a.title}</td>
-                  <td className="py-2 px-3">
-                    {a.due_date || a.dueDate
-                      ? new Date(a.due_date || a.dueDate).toLocaleDateString()
+                  {/* title */}
+                  <td className="py-3 px-4 text-indigo-700 font-medium">
+                    {a.title}
+                  </td>
+
+                  {/* due date */}
+                  <td className="py-3 px-4 text-gray-700">
+                    {a.dueDate || a.due_date
+                      ? new Date(a.dueDate || a.due_date).toLocaleDateString()
                       : "—"}
                   </td>
-                  <td className="py-2 px-3">
-                    {role === "teacher"
-                      ? `${a.submissions_pending || 0} pending`
-                      : a.status || "Not Submitted"}
-                  </td>
 
-                  {/* Student Submit Button */}
-                  {role === "student" && (
-                    <td className="py-2 px-3 text-right">
-                      {!a.status || a.status === "Not Submitted" ? (
-                        <button
-                          onClick={() => setSelectedAssignment(a)}
-                          className="bg-indigo-500 text-white px-3 py-1 rounded-md text-xs hover:bg-indigo-600"
-                        >
-                          Submit
-                        </button>
-                      ) : (
-                        <span className="text-green-600 text-xs">
-                          ✅ Submitted
-                        </span>
-                      )}
-                    </td>
-                  )}
-
-                  {/* Teacher View Submissions */}
-                  {role === "teacher" && (
-                    <td className="py-2 px-3 text-right">
+                  {/* action */}
+                  <td className="py-3 px-4">
+                    {role === "student" ? (
                       <button
                         onClick={() => setSelectedAssignment(a)}
                         className="bg-indigo-500 text-white px-3 py-1 rounded-md text-xs hover:bg-indigo-600"
                       >
+                        Submit
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setViewingSubmissions(a)}
+                        className="px-2 py-1 rounded-md hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                      >
                         View Submissions
                       </button>
-                    </td>
-                  )}
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -97,7 +94,7 @@ export default function CourseAssignments({
         </div>
       )}
 
-      {/* Modals */}
+      {/* create/edit form */}
       {showForm && (
         <AssignmentForm
           courseId={courseId}
@@ -106,17 +103,9 @@ export default function CourseAssignments({
         />
       )}
 
+      {/* student submit modal */}
       {selectedAssignment && role === "student" && (
         <SubmitAssignmentModal
-          assignment={selectedAssignment}
-          courseId={courseId}
-          onClose={() => setSelectedAssignment(null)}
-          onSuccess={refresh}
-        />
-      )}
-
-      {selectedAssignment && role === "teacher" && (
-        <AssignmentSubmissionsModal
           assignment={selectedAssignment}
           courseId={courseId}
           onClose={() => setSelectedAssignment(null)}

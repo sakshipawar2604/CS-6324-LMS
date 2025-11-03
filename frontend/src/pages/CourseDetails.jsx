@@ -30,17 +30,28 @@ export default function CourseDetails() {
     if (!courseId) return;
     setLoading(true);
     try {
-      const [courseRes, assignRes, resRes, enrollRes] = await Promise.all([
-        api.get(`/courses/${courseId}`),
-        api.get(`/courses/${courseId}/assignments`).catch(() => ({ data: [] })),
-        api.get(`/courses/${courseId}/resources`).catch(() => ({ data: [] })),
-        api.get(`/enrollments`).catch(() => ({ data: [] })),
-      ]);
+      const [courseRes, allAssignmentsRes, resRes, enrollRes] =
+        await Promise.all([
+          api.get(`/courses/${courseId}`),
+          api.get(`/assignments`).catch(() => ({ data: [] })), // fetch all, filter below
+          api.get(`/courses/${courseId}/resources`).catch(() => ({ data: [] })),
+          api.get(`/enrollments`).catch(() => ({ data: [] })),
+        ]);
 
+      // === COURSE INFO ===
       setCourse(courseRes.data);
-      setAssignments(assignRes.data || []);
+
+      // === FILTER ASSIGNMENTS ===
+      const allAssignments = allAssignmentsRes.data || [];
+      const courseAssignments = allAssignments.filter(
+        (a) => a.course?.courseId === Number(courseId)
+      );
+      setAssignments(courseAssignments);
+
+      // === RESOURCES (optional, depends on API availability) ===
       setResources(resRes.data || []);
 
+      // === ENROLLMENTS -> STUDENTS ===
       const enrolledStudents =
         enrollRes.data
           ?.filter((e) => e.course?.courseId === Number(courseId))
