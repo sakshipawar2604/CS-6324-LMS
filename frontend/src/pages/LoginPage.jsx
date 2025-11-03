@@ -49,34 +49,54 @@ export default function Login() {
 
   const onSubmit = async (data) => {
     try {
+      // Login request — get JWT token
       const res = await api.post("/auth/login", data);
-
       const token = res.data.token;
       if (!token) throw new Error("Token missing from response");
 
-      // Temporary static role until backend returns one
-      const role = import.meta.env.VITE_STATIC_ROLE || "student";
-
-      // Construct user profile object (without token)
-      const userProfile = {
-        role,
-        email: data.email,
-        name: data.email.split("@")[0],
-      };
-
+      // Save token to localStorage immediately
       localStorage.setItem("token", token);
+
+      const usersRes = await api.get("/users");
+      const allUsers = usersRes.data || [];
+
+      // Match logged-in user by email
+      const loggedInUser = allUsers.find(
+        (u) => u.email.toLowerCase() === data.email.toLowerCase()
+      );
+
+      if (!loggedInUser) throw new Error("User not found in system");
+
+      // Build and store full user profile
+      const userProfile = {
+        userId: loggedInUser.userId,
+        fullName: loggedInUser.fullName,
+        email: loggedInUser.email,
+        role: loggedInUser.role.roleName.toLowerCase(),
+      };
 
       localStorage.setItem("user", JSON.stringify(userProfile));
 
-      toast.success("Login successful");
+      toast.success(`Welcome back, ${userProfile.fullName.split(" ")[0]}!`);
 
-      // Redirect based on role
-      if (role === "admin") navigate("/admin/dashboard");
-      else if (role === "teacher") navigate("/teacher/dashboard");
-      else navigate("/student/dashboard");
+      // Redirect by role
+      switch (userProfile.role) {
+        case "admin":
+          navigate("/admin/dashboard");
+          break;
+        case "teacher":
+          navigate("/teacher/dashboard");
+          break;
+        case "student":
+          navigate("/student/dashboard");
+          break;
+        default:
+          toast.error("Invalid role detected");
+      }
 
       reset();
     } catch (err) {
+      console.error("Login error:", err);
       toast.error(err.response?.data?.message || "Incorrect credentials");
     }
   };

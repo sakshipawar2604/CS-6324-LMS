@@ -10,11 +10,20 @@ export default function TeacherDashboard() {
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
+        const storedUser = JSON.parse(localStorage.getItem("user"));
+        const teacherId = storedUser?.userId;
+
         const [coursesRes, performanceRes] = await Promise.all([
-          api.get("/teacher/courses"),
+          api.get("/courses"),
           api.get("/teacher/performance"),
         ]);
-        setCourses(coursesRes.data);
+
+        // Filter only courses created by the logged-in teacher
+        const teacherCourses = (coursesRes.data || []).filter(
+          (course) => course.createdBy?.userId === teacherId
+        );
+
+        setCourses(teacherCourses);
         setPerformance(performanceRes.data);
       } catch (err) {
         console.error(err);
@@ -59,7 +68,7 @@ export default function TeacherDashboard() {
           >
             {courses.map((course) => (
               <div
-                key={course.id}
+                key={course.courseId}
                 role="listitem"
                 aria-label={course.title}
                 className="p-4 bg-white rounded-xl shadow hover:shadow-md transition"
