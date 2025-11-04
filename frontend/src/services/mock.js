@@ -199,25 +199,25 @@ export function setupMocks() {
   });
 
   // Recent Grades (numeric grading)
-  mock.onGet(/\/submissions\?studentId=.*&graded=true/).reply(() => {
-    const recentGrades = [
-      {
-        submission_id: "S101",
-        assignment_title: "Sorting Algorithms",
-        course_title: "Data Structures",
-        grade: 95,
-        feedback: "Excellent work! Code is efficient and well-documented.",
-      },
-      {
-        submission_id: "S102",
-        assignment_title: "ER Diagram Design",
-        course_title: "Database Systems",
-        grade: 82,
-        feedback: "Good effort! Minor schema relationship issue.",
-      },
-    ];
-    return [200, recentGrades];
-  });
+  // mock.onGet(/\/submissions\?studentId=.*&graded=true/).reply(() => {
+  //   const recentGrades = [
+  //     {
+  //       submission_id: "S101",
+  //       assignment_title: "Sorting Algorithms",
+  //       course_title: "Data Structures",
+  //       grade: 95,
+  //       feedback: "Excellent work! Code is efficient and well-documented.",
+  //     },
+  //     {
+  //       submission_id: "S102",
+  //       assignment_title: "ER Diagram Design",
+  //       course_title: "Database Systems",
+  //       grade: 82,
+  //       feedback: "Good effort! Minor schema relationship issue.",
+  //     },
+  //   ];
+  //   return [200, recentGrades];
+  // });
 
   // ---- COURSE DETAILS ----
   mock.onGet(/\/courses\/CSE101$/).reply(200, {
@@ -275,54 +275,54 @@ export function setupMocks() {
   });
 
   // ---- STUDENT SUBMISSION ----
-  mock.onPost("/submissions").reply((config) => {
-    const formData = config.data;
-    const file = formData.get("file");
-    console.log("Mock student submission:", file?.name);
-    return [
-      201,
-      {
-        submission_id: "SUB" + Math.floor(Math.random() * 1000),
-        assignment_id: formData.get("assignment_id"),
-        submitted_at: new Date().toISOString(),
-        status: "Submitted",
-        file_url: `https://mock-storage.com/submissions/${
-          file?.name || "file.pdf"
-        }`,
-      },
-    ];
-  });
+  // mock.onPost("/submissions").reply((config) => {
+  //   const formData = config.data;
+  //   const file = formData.get("file");
+  //   console.log("Mock student submission:", file?.name);
+  //   return [
+  //     201,
+  //     {
+  //       submission_id: "SUB" + Math.floor(Math.random() * 1000),
+  //       assignment_id: formData.get("assignment_id"),
+  //       submitted_at: new Date().toISOString(),
+  //       status: "Submitted",
+  //       file_url: `https://mock-storage.com/submissions/${
+  //         file?.name || "file.pdf"
+  //       }`,
+  //     },
+  //   ];
+  // });
 
-  // ---- TEACHER VIEW SUBMISSIONS ----
-  mock.onGet(/\/assignments\/.*\/submissions$/).reply(200, [
-    {
-      submission_id: "SUB101",
-      student_id: "S1",
-      student_name: "Alice Johnson",
-      submitted_at: "2025-10-18T10:00:00Z",
-      file_url: "https://mock-storage.com/submissions/alice_assignment1.pdf",
-      grade: 95,
-      feedback: "Excellent work! Clear explanations and neat formatting.",
-    },
-    {
-      submission_id: "SUB102",
-      student_id: "S2",
-      student_name: "Bob Brown",
-      submitted_at: "2025-10-19T11:30:00Z",
-      file_url: "https://mock-storage.com/submissions/bob_assignment1.pdf",
-      grade: 78,
-      feedback: "Good effort, but a few minor logical errors.",
-    },
-    {
-      submission_id: "SUB103",
-      student_id: "S3",
-      student_name: "Charlie White",
-      submitted_at: "2025-10-20T09:45:00Z",
-      file_url: "https://mock-storage.com/submissions/charlie_assignment1.pdf",
-      grade: null,
-      feedback: null,
-    },
-  ]);
+  // // ---- TEACHER VIEW SUBMISSIONS ----
+  // mock.onGet(/\/assignments\/.*\/submissions$/).reply(200, [
+  //   {
+  //     submission_id: "SUB101",
+  //     student_id: "S1",
+  //     student_name: "Alice Johnson",
+  //     submitted_at: "2025-10-18T10:00:00Z",
+  //     file_url: "https://mock-storage.com/submissions/alice_assignment1.pdf",
+  //     grade: 95,
+  //     feedback: "Excellent work! Clear explanations and neat formatting.",
+  //   },
+  //   {
+  //     submission_id: "SUB102",
+  //     student_id: "S2",
+  //     student_name: "Bob Brown",
+  //     submitted_at: "2025-10-19T11:30:00Z",
+  //     file_url: "https://mock-storage.com/submissions/bob_assignment1.pdf",
+  //     grade: 78,
+  //     feedback: "Good effort, but a few minor logical errors.",
+  //   },
+  //   {
+  //     submission_id: "SUB103",
+  //     student_id: "S3",
+  //     student_name: "Charlie White",
+  //     submitted_at: "2025-10-20T09:45:00Z",
+  //     file_url: "https://mock-storage.com/submissions/charlie_assignment1.pdf",
+  //     grade: null,
+  //     feedback: null,
+  //   },
+  // ]);
 
   // ---- COURSE RESOURCES ----
 
