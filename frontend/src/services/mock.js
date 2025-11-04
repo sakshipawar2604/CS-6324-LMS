@@ -247,19 +247,6 @@ export function setupMocks() {
     },
   ]);
 
-  mock.onGet(/\/courses\/CSE101\/modules$/).reply(200, [
-    {
-      resource_id: "R1",
-      title: "Lecture Notes Week 1",
-      url: "https://example.com/notes1.pdf",
-    },
-    {
-      resource_id: "R2",
-      title: "Sorting Algorithms Slides",
-      url: "https://example.com/slides2.pdf",
-    },
-  ]);
-
   mock.onGet(/\/courses\/CSE101\/students$/).reply(200, [
     { student_id: "S1", name: "Alice Johnson", email: "alice@example.com" },
     { student_id: "S2", name: "Bob Brown", email: "bob@example.com" },
@@ -326,24 +313,24 @@ export function setupMocks() {
 
   // ---- COURSE RESOURCES ----
 
-  // Fetch modules
-  mock.onGet(/\/courses\/.*\/modules$/).reply(() => {
-    const modules = [
-      {
-        resource_id: "R101",
-        title: "Lecture 1 - Introduction",
-        url: "https://mock-storage.com/modules/lecture1.pdf",
-        uploaded_at: "2025-10-15T09:00:00Z",
-      },
-      {
-        resource_id: "R102",
-        title: "Lecture 2 - Algorithms Basics",
-        url: "https://mock-storage.com/modules/lecture2.pdf",
-        uploaded_at: "2025-10-17T10:30:00Z",
-      },
-    ];
-    return [200, modules];
-  });
+  // // Fetch modules
+  // mock.onGet(/\/courses\/.*\/modules$/).reply(() => {
+  //   const modules = [
+  //     {
+  //       resource_id: "R101",
+  //       title: "Lecture 1 - Introduction",
+  //       url: "https://mock-storage.com/modules/lecture1.pdf",
+  //       uploaded_at: "2025-10-15T09:00:00Z",
+  //     },
+  //     {
+  //       resource_id: "R102",
+  //       title: "Lecture 2 - Algorithms Basics",
+  //       url: "https://mock-storage.com/modules/lecture2.pdf",
+  //       uploaded_at: "2025-10-17T10:30:00Z",
+  //     },
+  //   ];
+  //   return [200, modules];
+  // });
 
   // Upload new resource
   mock.onPost(/\/courses\/.*\/modules$/).reply((config) => {

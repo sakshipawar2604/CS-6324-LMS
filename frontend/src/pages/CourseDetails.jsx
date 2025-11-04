@@ -34,7 +34,9 @@ export default function CourseDetails() {
         await Promise.all([
           api.get(`/courses/${courseId}`),
           api.get(`/assignments`).catch(() => ({ data: [] })), // fetch all, filter below
-          api.get(`/courses/${courseId}/modules`).catch(() => ({ data: [] })),
+          api
+            .get(`/modules/getModulesByCourseId/${courseId}`)
+            .catch(() => ({ data: [] })),
           api.get(`/enrollments`).catch(() => ({ data: [] })),
         ]);
 

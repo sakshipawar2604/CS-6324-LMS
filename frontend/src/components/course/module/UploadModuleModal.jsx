@@ -1,37 +1,36 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
+import api from "../../../services/http"; // ✅ ensure correct import path
 
 export default function UploadModuleModal({ courseId, onClose, onSuccess }) {
   const [title, setTitle] = useState("");
-  const [file, setFile] = useState(null);
+  const [description, setDescription] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0];
-    if (!selected) return;
-    const allowed = ["application/pdf", "application/zip"];
-    if (!allowed.includes(selected.type)) {
-      toast.error("Only PDF or ZIP files are allowed");
-      return;
-    }
-    setFile(selected);
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !file) {
-      toast.error("Please provide a title and file");
+    if (!title.trim()) {
+      toast.error("Please enter a module title");
       return;
     }
+
     setLoading(true);
     try {
-      // Mock upload — replace with API later
-      console.log("Uploading module:", { courseId, title, file });
+      const payload = {
+        title,
+        description,
+        course: { courseId },
+      };
+
+      // 🔹 Make backend API call
+      await api.post("/modules", payload);
+
       toast.success("Module uploaded successfully!");
-      onSuccess();
-      onClose();
+      onSuccess(); // refresh modules list
+      onClose(); // close modal
     } catch (err) {
-      toast.error("Upload failed");
+      console.error("Upload failed:", err);
+      toast.error("Failed to upload module");
     } finally {
       setLoading(false);
     }
@@ -45,6 +44,7 @@ export default function UploadModuleModal({ courseId, onClose, onSuccess }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title Field */}
           <div>
             <label className="block text-sm text-gray-700">Module Title</label>
             <input
@@ -57,22 +57,19 @@ export default function UploadModuleModal({ courseId, onClose, onSuccess }) {
             />
           </div>
 
+          {/* Optional Description Field */}
           <div>
-            <label className="block text-sm text-gray-700">
-              Select File (PDF / ZIP)
-            </label>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
-              accept=".pdf,.zip"
-              required
+            <label className="block text-sm text-gray-700">Description</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows={3}
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 text-sm"
+              placeholder="Add a short module description"
             />
-            {file && (
-              <p className="text-sm mt-1 text-gray-500">📄 {file.name}</p>
-            )}
           </div>
 
+          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"
