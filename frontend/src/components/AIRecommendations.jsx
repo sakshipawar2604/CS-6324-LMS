@@ -43,7 +43,7 @@ export default function AIRecommendations({ studentId, courseId }) {
 
   if (!recs.length) {
     return (
-      <p className="text-gray-500">🎉 No extra resources needed right now.</p>
+      <p className="text-gray-500">🎉 No extra modules needed right now.</p>
     );
   }
 

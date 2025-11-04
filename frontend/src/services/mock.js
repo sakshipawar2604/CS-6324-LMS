@@ -247,7 +247,7 @@ export function setupMocks() {
     },
   ]);
 
-  mock.onGet(/\/courses\/CSE101\/resources$/).reply(200, [
+  mock.onGet(/\/courses\/CSE101\/modules$/).reply(200, [
     {
       resource_id: "R1",
       title: "Lecture Notes Week 1",
@@ -326,27 +326,27 @@ export function setupMocks() {
 
   // ---- COURSE RESOURCES ----
 
-  // Fetch resources
-  mock.onGet(/\/courses\/.*\/resources$/).reply(() => {
-    const resources = [
+  // Fetch modules
+  mock.onGet(/\/courses\/.*\/modules$/).reply(() => {
+    const modules = [
       {
         resource_id: "R101",
         title: "Lecture 1 - Introduction",
-        url: "https://mock-storage.com/resources/lecture1.pdf",
+        url: "https://mock-storage.com/modules/lecture1.pdf",
         uploaded_at: "2025-10-15T09:00:00Z",
       },
       {
         resource_id: "R102",
         title: "Lecture 2 - Algorithms Basics",
-        url: "https://mock-storage.com/resources/lecture2.pdf",
+        url: "https://mock-storage.com/modules/lecture2.pdf",
         uploaded_at: "2025-10-17T10:30:00Z",
       },
     ];
-    return [200, resources];
+    return [200, modules];
   });
 
   // Upload new resource
-  mock.onPost(/\/courses\/.*\/resources$/).reply((config) => {
+  mock.onPost(/\/courses\/.*\/modules$/).reply((config) => {
     const formData = config.data;
     const file = formData.get("file");
     const title = formData.get("title");
@@ -356,9 +356,7 @@ export function setupMocks() {
       {
         resource_id: "R" + Math.floor(Math.random() * 1000),
         title,
-        url: `https://mock-storage.com/resources/${
-          file?.name || "newfile.pdf"
-        }`,
+        url: `https://mock-storage.com/modules/${file?.name || "newfile.pdf"}`,
         uploaded_at: new Date().toISOString(),
       },
     ];

@@ -2,7 +2,7 @@ export default function CourseTabs({ tab, setTab }) {
   const tabs = [
     "overview",
     "assignments",
-    "resources",
+    "modules",
     "students",
     "performance",
   ];

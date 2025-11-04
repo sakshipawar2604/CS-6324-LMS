@@ -38,7 +38,7 @@ export default function UploadResourceModal({ courseId, onClose, onSuccess }) {
       formData.append("title", title);
       formData.append("file", file);
 
-      await api.post(`/courses/${courseId}/resources`, formData, {
+      await api.post(`/courses/${courseId}/modules`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

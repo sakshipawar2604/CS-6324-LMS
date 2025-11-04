@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 import CourseTabs from "../components/course/CourseTabs";
 import CourseOverview from "../components/course/CourseOverview";
 import CourseAssignments from "../components/course/CourseAssignments";
-import CourseResources from "../components/course/CourseResources";
+import CourseModules from "../components/course/CourseModules.jsx";
 import CourseStudents from "../components/course/CourseStudents";
 import CoursePerformance from "../components/course/CoursePerformance";
 
@@ -15,7 +15,7 @@ export default function CourseDetails() {
   const [tab, setTab] = useState("overview");
   const [course, setCourse] = useState(null);
   const [assignments, setAssignments] = useState([]);
-  const [resources, setResources] = useState([]);
+  const [modules, setResources] = useState([]);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +34,7 @@ export default function CourseDetails() {
         await Promise.all([
           api.get(`/courses/${courseId}`),
           api.get(`/assignments`).catch(() => ({ data: [] })), // fetch all, filter below
-          api.get(`/courses/${courseId}/resources`).catch(() => ({ data: [] })),
+          api.get(`/courses/${courseId}/modules`).catch(() => ({ data: [] })),
           api.get(`/enrollments`).catch(() => ({ data: [] })),
         ]);
 
@@ -109,11 +109,11 @@ export default function CourseDetails() {
             refresh={fetchCourseData}
           />
         )}
-        {tab === "resources" && (
-          <CourseResources
+        {tab === "modules" && (
+          <CourseModules
             role={role}
             courseId={courseId}
-            resources={resources}
+            modules={modules}
             refresh={fetchCourseData}
           />
         )}
