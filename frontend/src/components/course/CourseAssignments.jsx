@@ -96,9 +96,9 @@ export default function CourseAssignments({
                     ) : (
                       <button
                         onClick={() => setSelectedAssignment(a)}
-                        className="bg-indigo-500 text-white px-3 py-1 rounded-md text-xs hover:bg-indigo-600"
+                        className="px-2 py-1 rounded-md text-sm hover:bg-indigo-200"
                       >
-                        Submit
+                        Add Submission
                       </button>
                     )}
                   </td>
