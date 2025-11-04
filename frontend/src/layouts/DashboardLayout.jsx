@@ -165,7 +165,7 @@ export default function DashboardLayout() {
         {/* Header */}
         <header className="bg-white shadow px-6 py-4 flex justify-between items-center">
           <h2 className="text-xl font-semibold text-indigo-700">
-            Hello, {user?.user?.name || "User"}
+            Hello, {user?.fullName || "User"}
           </h2>
           <p
             className="text-sm text-gray-500 capitalize"
