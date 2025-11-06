@@ -72,7 +72,7 @@ export default function StudentDashboard() {
 
         // Filter pending assignments:
         // 1. Not submitted yet by this student
-        // 2. Due date is in the future (or no due date)
+        // (Include all unsubmitted assignments, even if overdue)
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -82,19 +82,25 @@ export default function StudentDashboard() {
             if (submittedAssignmentIds.has(a.assignmentId)) {
               return false;
             }
-            // If no due date, consider it pending
-            if (!a.dueDate) return true;
-            // Check if due date is today or in the future
-            const dueDate = new Date(a.dueDate);
-            dueDate.setHours(0, 0, 0, 0);
-            return dueDate >= today;
+            // Include all unsubmitted assignments (including overdue ones)
+            return true;
           })
-          .map((a) => ({
-            assignment_id: a.assignmentId,
-            title: a.title,
-            course_title: a.course?.title || "Unknown",
-            due_date: a.dueDate,
-          }));
+          .map((a) => {
+            // Check if overdue for styling purposes
+            let isOverdue = false;
+            if (a.dueDate) {
+              const dueDate = new Date(a.dueDate);
+              dueDate.setHours(0, 0, 0, 0);
+              isOverdue = dueDate < today;
+            }
+            return {
+              assignment_id: a.assignmentId,
+              title: a.title,
+              course_title: a.course?.title || "Unknown",
+              due_date: a.dueDate,
+              isOverdue: isOverdue,
+            };
+          });
 
         setPendingAssignments(pending);
 
@@ -250,9 +256,26 @@ export default function StudentDashboard() {
                       {a.course_title || a.course?.title}
                     </td>
                     <td className="py-2 px-3">
-                      {a.due_date || a.dueDate
-                        ? new Date(a.due_date || a.dueDate).toLocaleDateString()
-                        : "-"}
+                      {a.due_date || a.dueDate ? (
+                        <span
+                          className={
+                            a.isOverdue
+                              ? "text-red-600 font-semibold"
+                              : "text-gray-700"
+                          }
+                        >
+                          {new Date(
+                            a.due_date || a.dueDate
+                          ).toLocaleDateString()}
+                          {a.isOverdue && (
+                            <span className="ml-2 text-xs text-red-500">
+                              (Overdue)
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        "-"
+                      )}
                     </td>
                   </tr>
                 ))}
