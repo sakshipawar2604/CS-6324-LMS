@@ -13,8 +13,9 @@ export default function PerformanceTab({ courseId, studentId, role }) {
     const fetchData = async () => {
       try {
         if (role === "teacher") {
-          // Teacher: Fetch all students' performance for the course
-          const res = await api.get(`/teacher/courses/${courseId}/performance`);
+          const res = await api.get(
+            `/submissions/averageGradesOfStudentsInACourse/${courseId}`
+          );
           setStudentList(res.data || []);
         } else if (role === "student") {
           // Student: Fetch own performance and recommendations
@@ -66,7 +67,8 @@ export default function PerformanceTab({ courseId, studentId, role }) {
 
         <div className="space-y-4">
           {studentList.map((student) => {
-            const grade = student.average_grade;
+            const grade = student.averagePercentage;
+            console.log("grade:-", grade);
             const color =
               grade >= 70
                 ? "bg-green-500"
@@ -83,12 +85,12 @@ export default function PerformanceTab({ courseId, studentId, role }) {
 
             return (
               <div
-                key={student.student_name}
+                key={student.userDto.fullName}
                 className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition"
               >
                 <div className="flex justify-between items-center mb-1">
                   <h3 className="font-medium text-gray-800">
-                    {student.student_name}
+                    {student.userDto.fullName}
                   </h3>
                   <span
                     className={`text-sm font-semibold ${
@@ -110,7 +112,7 @@ export default function PerformanceTab({ courseId, studentId, role }) {
                   aria-valuenow={grade}
                   aria-valuemin="0"
                   aria-valuemax="100"
-                  aria-label={`${student.student_name} — ${grade}% average (${label})`}
+                  aria-label={`${student.userDto.fullName} — ${grade}% average (${label})`}
                 >
                   <div
                     className={`${color} h-3 rounded-full transition-all duration-300`}
