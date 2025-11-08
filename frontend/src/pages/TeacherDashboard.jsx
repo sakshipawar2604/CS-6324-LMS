@@ -6,25 +6,31 @@ export default function TeacherDashboard() {
   const [courses, setCourses] = useState([]);
   const [performance, setPerformance] = useState([]);
   const [loading, setLoading] = useState(true);
+  const threshold = Number(import.meta.env.VITE_THRESHOLD);
 
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const storedUser = JSON.parse(localStorage.getItem("user"));
         const teacherId = storedUser?.userId;
-
-        const [coursesRes, performanceRes] = await Promise.all([
-          api.get("/courses"),
-          api.get("/teacher/performance"),
-        ]);
-
-        // Filter only courses created by the logged-in teacher
-        const teacherCourses = (coursesRes.data || []).filter(
+        // Fetch all courses once
+        const { data: allCourses } = await api.get("/courses");
+        // Filter courses created by the logged-in teacher
+        const teacherCourses = (allCourses || []).filter(
           (course) => course.createdBy?.userId === teacherId
         );
-
         setCourses(teacherCourses);
-        setPerformance(performanceRes.data);
+        // Fetch performance data for all teacher's courses in parallel
+        const performanceResponses = await Promise.all(
+          teacherCourses.map((course) =>
+            api.get(
+              `/courses/coursePerformanceByCourseId/${course.courseId}/${threshold}`
+            )
+          )
+        );
+        // Extract data from all responses
+        const performanceData = performanceResponses.map((res) => res.data);
+        setPerformance(performanceData);
       } catch (err) {
         console.error(err);
         toast.error("Failed to load dashboard data");
@@ -110,33 +116,32 @@ export default function TeacherDashboard() {
           >
             {performance.map((item) => {
               const color =
-                item.average_grade >= 70
+                item.averageGradeOfStudentsInCourse >= 70
                   ? "bg-green-500"
-                  : item.average_grade >= 50
+                  : item.averageGradeOfStudentsInCourse >= 50
                   ? "bg-yellow-500"
                   : "bg-red-500";
-
               return (
                 <div
-                  key={item.course_id}
+                  key={item.course.courseId}
                   role="listitem"
-                  aria-label={`${item.course_title} - Average grade: ${item.average_grade}%`}
+                  aria-label={`${item.course.title} - Average grade: ${item.averageGradeOfStudentsInCourse}%`}
                   className="bg-white rounded-xl p-4 shadow"
                 >
                   <div className="flex justify-between items-center mb-1">
                     <h3 className="font-medium text-gray-800">
-                      {item.course_title}
+                      {item.course.title}
                     </h3>
                     <span
                       className={`text-sm font-semibold ${
-                        item.average_grade >= 70
+                        item.averageGradeOfStudentsInCourse >= 70
                           ? "text-green-600"
-                          : item.average_grade >= 50
+                          : item.averageGradeOfStudentsInCourse >= 50
                           ? "text-yellow-600"
                           : "text-red-600"
                       }`}
                     >
-                      {item.average_grade}% Avg
+                      {item.averageGradeOfStudentsInCourse}% Avg
                     </span>
                   </div>
 
@@ -144,22 +149,24 @@ export default function TeacherDashboard() {
                   <div
                     className="w-full bg-gray-200 rounded-full h-3"
                     role="progressbar"
-                    aria-valuenow={item.average_grade}
+                    aria-valuenow={item.averageGradeOfStudentsInCourse}
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    aria-label={`Average grade for ${item.course_title}: ${item.average_grade}%`}
+                    aria-label={`Average grade for ${item.course.title}: ${item.averageGradeOfStudentsInCourse}%`}
                   >
                     <div
                       className={`${color} h-3 rounded-full transition-all duration-300`}
-                      style={{ width: `${item.average_grade}%` }}
+                      style={{
+                        width: `${item.averageGradeOfStudentsInCourse}%`,
+                      }}
                     ></div>
                   </div>
 
                   <p className="text-sm text-gray-600 mt-2">
                     <span className="font-medium text-gray-700">
-                      {item.below_threshold}
+                      {item.studentCountBelowThreshold}
                     </span>{" "}
-                    students below 70% threshold
+                    students below {threshold}% threshold
                   </p>
                 </div>
               );
