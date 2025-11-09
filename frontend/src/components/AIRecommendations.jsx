@@ -117,7 +117,9 @@ export default function AIRecommendations({ studentId, courseId }) {
   }
 
   if (!recs.length) {
-    return <p className="text-gray-500">🎉 No extra modules needed right now.</p>;
+    return (
+      <p className="text-gray-500">🎉 No extra modules needed right now.</p>
+    );
   }
 
   const typeIcon = (t) => (t === "video" ? "▶️" : t === "document" ? "📄" : "🌐");

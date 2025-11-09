@@ -16,7 +16,7 @@ export default function TeacherSidebar() {
     { to: "/teacher/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { to: "/teacher/courses", label: "My Courses", icon: BookOpen },
     { to: "/teacher/analytics", label: "Analytics", icon: BarChart3 },
-    { to: "/teacher/resources", label: "Resources", icon: FileText },
+    { to: "/teacher/modules", label: "Resources", icon: FileText },
     { to: "/teacher/students", label: "Students", icon: Users },
   ];
 

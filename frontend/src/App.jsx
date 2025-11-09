@@ -1,5 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import LoginPage from "./pages/LoginPage";
+import ForgotPassword from "./pages/ForgotPassword";
 import AdminDashboard from "./pages/AdminDashboard";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import TeacherCourses from "./pages/TeacherCourses";
@@ -19,6 +20,7 @@ export default function App() {
       {/* Public routes */}
       <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
       {/* Admin routes */}
       <Route path="/admin" element={<AdminLayout />}>

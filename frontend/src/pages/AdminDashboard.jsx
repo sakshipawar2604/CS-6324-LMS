@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/http";
 import toast from "react-hot-toast";
 import {
@@ -7,6 +8,7 @@ import {
   GraduationCap,
   BookOpen,
   Layers,
+  TrendingUp,
 } from "lucide-react";
 
 export default function AdminDashboard() {
@@ -18,6 +20,7 @@ export default function AdminDashboard() {
     total_enrollments: 0,
   });
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchMetrics = async () => {
@@ -68,43 +71,48 @@ export default function AdminDashboard() {
       label: "Total Users",
       value: metrics.total_users,
       icon: UserCircle2,
-      color: "from-indigo-500/90 to-indigo-700/90",
-      accent: "text-indigo-300",
+      color: "from-indigo-500/80 to-indigo-700/80",
+      glow: "shadow-indigo-400/40",
+      onClick: () => navigate("/admin/users"),
     },
     {
       label: "Total Teachers",
       value: metrics.total_teachers,
       icon: UserCog,
-      color: "from-blue-500/90 to-blue-700/90",
-      accent: "text-blue-300",
+      color: "from-blue-500/80 to-blue-700/80",
+      glow: "shadow-blue-400/40",
+      onClick: () => navigate("/admin/users?filter=teacher"),
     },
     {
       label: "Total Students",
       value: metrics.total_students,
       icon: GraduationCap,
-      color: "from-green-500/90 to-green-700/90",
-      accent: "text-green-300",
+      color: "from-green-500/80 to-green-700/80",
+      glow: "shadow-green-400/40",
+      onClick: () => navigate("/admin/users?filter=student"),
     },
     {
       label: "Total Courses",
       value: metrics.total_courses,
       icon: BookOpen,
-      color: "from-purple-500/90 to-purple-700/90",
-      accent: "text-purple-300",
+      color: "from-purple-500/80 to-purple-700/80",
+      glow: "shadow-purple-400/40",
+      onClick: () => navigate("/admin/courses"),
     },
     {
       label: "Total Enrollments",
       value: metrics.total_enrollments,
       icon: Layers,
-      color: "from-pink-500/90 to-pink-700/90",
-      accent: "text-pink-300",
+      color: "from-pink-500/80 to-pink-700/80",
+      glow: "shadow-pink-400/40",
+      onClick: () => navigate("/admin/enrollments"),
     },
   ];
 
   return (
     <div className="space-y-10">
       {/* Header */}
-      <header className="text-center mb-8">
+      <header className="text-center mb-6">
         <h1 className="text-3xl font-bold text-indigo-700 mb-1">
           Admin Dashboard
         </h1>
@@ -113,44 +121,42 @@ export default function AdminDashboard() {
         </p>
       </header>
 
-      {/* Metrics grid */}
+      {/* Grid */}
       <div className="max-w-6xl mx-auto px-4">
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-          role="list"
-          aria-label="Dashboard metrics"
-        >
-          {cards.map(({ label, value, icon: Icon, color, accent }) => (
-            <article
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {cards.map(({ label, value, icon: Icon, color, glow, onClick }) => (
+            <button
               key={label}
-              role="listitem"
-              aria-label={`${label}: ${value}`}
-              tabIndex={0}
-              className={`relative rounded-2xl bg-gradient-to-br ${color} 
-              text-white p-6 backdrop-blur-lg shadow-lg
-              flex flex-col justify-between border border-white/10
-              hover:scale-105 hover:shadow-2xl hover:border-white/30 transition-all duration-300
-              focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2`}
+              onClick={onClick}
+              className={`group relative rounded-2xl bg-gradient-to-br ${color} 
+              text-white p-6 shadow-lg ${glow} hover:shadow-2xl
+              backdrop-blur-xl border border-white/10 
+              hover:scale-[1.03] transition-all duration-300 ease-out 
+              overflow-hidden focus:outline-none focus:ring-4 focus:ring-indigo-300 focus:ring-offset-2`}
             >
-              {/* Soft glow behind icon */}
-              <div className="absolute -top-3 -right-3 w-20 h-20 bg-white/10 rounded-full blur-2xl opacity-50 pointer-events-none"></div>
+              {/* Glow effect */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-20 bg-white blur-2xl transition"></div>
 
+              {/* Icon */}
               <div className="flex items-center justify-between mb-4">
-                <Icon
-                  size={42}
-                  strokeWidth={2.5}
-                  className={`${accent} drop-shadow-lg`}
-                  aria-hidden="true"
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
+                    <Icon size={28} strokeWidth={2.3} className="text-white" />
+                  </div>
+                  <p className="text-lg font-semibold tracking-wide">{label}</p>
+                </div>
+                <TrendingUp
+                  size={20}
+                  className="text-white/70 group-hover:text-white transition"
                 />
               </div>
 
-              <div>
+              {/* Number + Tagline */}
+              <div className="flex items-end justify-between mt-6">
                 <AnimatedCounter target={value} />
-                <p className="text-base font-medium opacity-90 mt-1 tracking-wide">
-                  {label}
-                </p>
+                <span className="text-sm opacity-80 italic">View Details</span>
               </div>
-            </article>
+            </button>
           ))}
         </div>
       </div>
@@ -158,7 +164,7 @@ export default function AdminDashboard() {
   );
 }
 
-/* Animated count-up effect */
+/* Smooth count-up animation */
 function AnimatedCounter({ target }) {
   const [count, setCount] = useState(0);
 
@@ -167,7 +173,7 @@ function AnimatedCounter({ target }) {
     const end = target;
     if (start === end) return;
 
-    const duration = 1000; // 1s
+    const duration = 1000;
     const stepTime = 20;
     const totalSteps = duration / stepTime;
     const increment = end / totalSteps;
@@ -185,7 +191,7 @@ function AnimatedCounter({ target }) {
   }, [target]);
 
   return (
-    <p className="text-5xl font-extrabold mb-2 tracking-tight drop-shadow-md">
+    <p className="text-5xl font-extrabold tracking-tight drop-shadow-md">
       {count.toLocaleString()}
     </p>
   );

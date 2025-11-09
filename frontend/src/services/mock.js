@@ -199,25 +199,25 @@ export function setupMocks() {
   });
 
   // Recent Grades (numeric grading)
-  mock.onGet(/\/submissions\?studentId=.*&graded=true/).reply(() => {
-    const recentGrades = [
-      {
-        submission_id: "S101",
-        assignment_title: "Sorting Algorithms",
-        course_title: "Data Structures",
-        grade: 95,
-        feedback: "Excellent work! Code is efficient and well-documented.",
-      },
-      {
-        submission_id: "S102",
-        assignment_title: "ER Diagram Design",
-        course_title: "Database Systems",
-        grade: 82,
-        feedback: "Good effort! Minor schema relationship issue.",
-      },
-    ];
-    return [200, recentGrades];
-  });
+  // mock.onGet(/\/submissions\?studentId=.*&graded=true/).reply(() => {
+  //   const recentGrades = [
+  //     {
+  //       submission_id: "S101",
+  //       assignment_title: "Sorting Algorithms",
+  //       course_title: "Data Structures",
+  //       grade: 95,
+  //       feedback: "Excellent work! Code is efficient and well-documented.",
+  //     },
+  //     {
+  //       submission_id: "S102",
+  //       assignment_title: "ER Diagram Design",
+  //       course_title: "Database Systems",
+  //       grade: 82,
+  //       feedback: "Good effort! Minor schema relationship issue.",
+  //     },
+  //   ];
+  //   return [200, recentGrades];
+  // });
 
   // ---- COURSE DETAILS ----
   mock.onGet(/\/courses\/CSE101$/).reply(200, {
@@ -247,19 +247,6 @@ export function setupMocks() {
     },
   ]);
 
-  mock.onGet(/\/courses\/CSE101\/resources$/).reply(200, [
-    {
-      resource_id: "R1",
-      title: "Lecture Notes Week 1",
-      url: "https://example.com/notes1.pdf",
-    },
-    {
-      resource_id: "R2",
-      title: "Sorting Algorithms Slides",
-      url: "https://example.com/slides2.pdf",
-    },
-  ]);
-
   mock.onGet(/\/courses\/CSE101\/students$/).reply(200, [
     { student_id: "S1", name: "Alice Johnson", email: "alice@example.com" },
     { student_id: "S2", name: "Bob Brown", email: "bob@example.com" },
@@ -275,78 +262,78 @@ export function setupMocks() {
   });
 
   // ---- STUDENT SUBMISSION ----
-  mock.onPost("/submissions").reply((config) => {
-    const formData = config.data;
-    const file = formData.get("file");
-    console.log("Mock student submission:", file?.name);
-    return [
-      201,
-      {
-        submission_id: "SUB" + Math.floor(Math.random() * 1000),
-        assignment_id: formData.get("assignment_id"),
-        submitted_at: new Date().toISOString(),
-        status: "Submitted",
-        file_url: `https://mock-storage.com/submissions/${
-          file?.name || "file.pdf"
-        }`,
-      },
-    ];
-  });
+  // mock.onPost("/submissions").reply((config) => {
+  //   const formData = config.data;
+  //   const file = formData.get("file");
+  //   console.log("Mock student submission:", file?.name);
+  //   return [
+  //     201,
+  //     {
+  //       submission_id: "SUB" + Math.floor(Math.random() * 1000),
+  //       assignment_id: formData.get("assignment_id"),
+  //       submitted_at: new Date().toISOString(),
+  //       status: "Submitted",
+  //       file_url: `https://mock-storage.com/submissions/${
+  //         file?.name || "file.pdf"
+  //       }`,
+  //     },
+  //   ];
+  // });
 
-  // ---- TEACHER VIEW SUBMISSIONS ----
-  mock.onGet(/\/assignments\/.*\/submissions$/).reply(200, [
-    {
-      submission_id: "SUB101",
-      student_id: "S1",
-      student_name: "Alice Johnson",
-      submitted_at: "2025-10-18T10:00:00Z",
-      file_url: "https://mock-storage.com/submissions/alice_assignment1.pdf",
-      grade: 95,
-      feedback: "Excellent work! Clear explanations and neat formatting.",
-    },
-    {
-      submission_id: "SUB102",
-      student_id: "S2",
-      student_name: "Bob Brown",
-      submitted_at: "2025-10-19T11:30:00Z",
-      file_url: "https://mock-storage.com/submissions/bob_assignment1.pdf",
-      grade: 78,
-      feedback: "Good effort, but a few minor logical errors.",
-    },
-    {
-      submission_id: "SUB103",
-      student_id: "S3",
-      student_name: "Charlie White",
-      submitted_at: "2025-10-20T09:45:00Z",
-      file_url: "https://mock-storage.com/submissions/charlie_assignment1.pdf",
-      grade: null,
-      feedback: null,
-    },
-  ]);
+  // // ---- TEACHER VIEW SUBMISSIONS ----
+  // mock.onGet(/\/assignments\/.*\/submissions$/).reply(200, [
+  //   {
+  //     submission_id: "SUB101",
+  //     student_id: "S1",
+  //     student_name: "Alice Johnson",
+  //     submitted_at: "2025-10-18T10:00:00Z",
+  //     file_url: "https://mock-storage.com/submissions/alice_assignment1.pdf",
+  //     grade: 95,
+  //     feedback: "Excellent work! Clear explanations and neat formatting.",
+  //   },
+  //   {
+  //     submission_id: "SUB102",
+  //     student_id: "S2",
+  //     student_name: "Bob Brown",
+  //     submitted_at: "2025-10-19T11:30:00Z",
+  //     file_url: "https://mock-storage.com/submissions/bob_assignment1.pdf",
+  //     grade: 78,
+  //     feedback: "Good effort, but a few minor logical errors.",
+  //   },
+  //   {
+  //     submission_id: "SUB103",
+  //     student_id: "S3",
+  //     student_name: "Charlie White",
+  //     submitted_at: "2025-10-20T09:45:00Z",
+  //     file_url: "https://mock-storage.com/submissions/charlie_assignment1.pdf",
+  //     grade: null,
+  //     feedback: null,
+  //   },
+  // ]);
 
   // ---- COURSE RESOURCES ----
 
-  // Fetch resources
-  mock.onGet(/\/courses\/.*\/resources$/).reply(() => {
-    const resources = [
-      {
-        resource_id: "R101",
-        title: "Lecture 1 - Introduction",
-        url: "https://mock-storage.com/resources/lecture1.pdf",
-        uploaded_at: "2025-10-15T09:00:00Z",
-      },
-      {
-        resource_id: "R102",
-        title: "Lecture 2 - Algorithms Basics",
-        url: "https://mock-storage.com/resources/lecture2.pdf",
-        uploaded_at: "2025-10-17T10:30:00Z",
-      },
-    ];
-    return [200, resources];
-  });
+  // // Fetch modules
+  // mock.onGet(/\/courses\/.*\/modules$/).reply(() => {
+  //   const modules = [
+  //     {
+  //       resource_id: "R101",
+  //       title: "Lecture 1 - Introduction",
+  //       url: "https://mock-storage.com/modules/lecture1.pdf",
+  //       uploaded_at: "2025-10-15T09:00:00Z",
+  //     },
+  //     {
+  //       resource_id: "R102",
+  //       title: "Lecture 2 - Algorithms Basics",
+  //       url: "https://mock-storage.com/modules/lecture2.pdf",
+  //       uploaded_at: "2025-10-17T10:30:00Z",
+  //     },
+  //   ];
+  //   return [200, modules];
+  // });
 
   // Upload new resource
-  mock.onPost(/\/courses\/.*\/resources$/).reply((config) => {
+  mock.onPost(/\/courses\/.*\/modules$/).reply((config) => {
     const formData = config.data;
     const file = formData.get("file");
     const title = formData.get("title");
@@ -356,9 +343,7 @@ export function setupMocks() {
       {
         resource_id: "R" + Math.floor(Math.random() * 1000),
         title,
-        url: `https://mock-storage.com/resources/${
-          file?.name || "newfile.pdf"
-        }`,
+        url: `https://mock-storage.com/modules/${file?.name || "newfile.pdf"}`,
         uploaded_at: new Date().toISOString(),
       },
     ];

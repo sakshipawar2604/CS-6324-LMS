@@ -86,7 +86,7 @@ export default function CoursePerformanceStudent({ courseId, studentId }) {
       </section>
 
       {/* AI Recommendations */}
-      <section aria-label="AI recommended resources">
+      <section aria-label="AI recommended modules">
         <h3 className="text-lg font-semibold text-indigo-700 mb-2">
           🎯 Personalized Recommendations
         </h3>

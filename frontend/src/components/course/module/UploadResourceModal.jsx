@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import api from "../../../services/http"; // ✅ make sure this path exists
+import api from "../../../services/http";
 
 export default function UploadResourceModal({
   moduleId,
@@ -12,14 +12,12 @@ export default function UploadResourceModal({
   const [fileUrl, setFileUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch the logged-in teacher’s info
+  // Fetch the logged-in teacher's info
   const user = JSON.parse(localStorage.getItem("user"));
   const teacherId = user?.userId || user?.user?.userId;
 
-  // 🔹 Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!title.trim() || !fileUrl.trim()) {
       toast.error("Please fill in all fields");
       return;
@@ -27,7 +25,7 @@ export default function UploadResourceModal({
 
     setLoading(true);
     try {
-      // ✅ Payload exactly as backend expects
+      // Payload exactly as backend expects
       const payload = {
         title: title.trim(),
         fileUrl: fileUrl.trim(),
@@ -36,7 +34,7 @@ export default function UploadResourceModal({
         uploadedBy: { userId: teacherId },
       };
 
-      // ✅ POST to backend
+      // POST to backend
       const res = await api.post("/resources", payload);
 
       if (res.status === 201 || res.status === 200) {
@@ -60,7 +58,6 @@ export default function UploadResourceModal({
     }
   };
 
-  // 🔹 UI
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
@@ -69,9 +66,8 @@ export default function UploadResourceModal({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Resource Title */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700">
               Resource Title
             </label>
             <input
@@ -84,9 +80,8 @@ export default function UploadResourceModal({
             />
           </div>
 
-          {/* File URL */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700">
               File URL (Direct link to PDF, DOC, etc.)
             </label>
             <input
@@ -99,20 +94,19 @@ export default function UploadResourceModal({
             />
           </div>
 
-          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"
               onClick={onClose}
+              className="px-4 py-2 text-gray-600 hover:text-gray-800"
               disabled={loading}
-              className="px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-gray-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
             >
               {loading ? "Uploading..." : "Upload"}
             </button>

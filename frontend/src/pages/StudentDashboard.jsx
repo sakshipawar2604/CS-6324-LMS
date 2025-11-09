@@ -17,31 +17,121 @@ export default function StudentDashboard() {
   }, []);
 
   useEffect(() => {
-    if (!user?.user?.user_id) return;
+    if (!user?.userId) return;
 
     const fetchStudentData = async () => {
       setLoading(true);
       try {
-        const studentId = user.user.user_id;
+        const studentId = user.userId;
 
-        // 1️⃣ Enrolled courses
-        const coursesRes = await api.get(`/enrollments?studentId=${studentId}`);
-        setCourses(coursesRes.data || []);
+        //  Fetch all enrollments and filter for this student
+        const enrollmentsRes = await api
+          .get(`/enrollments`)
+          .catch(() => ({ data: [] }));
+        const allEnrollments = enrollmentsRes.data || [];
 
-        // 2️⃣ Pending assignments
-        const assignmentsRes = await api.get(
-          `/assignments?studentId=${studentId}&status=pending`
+        // Filter enrollments for this student
+        const studentEnrollments = allEnrollments.filter(
+          (e) => e.student?.userId === studentId
         );
-        setPendingAssignments(assignmentsRes.data || []);
 
-        // 3️⃣ Recent grades
-        const gradesRes = await api.get(
-          `/submissions?studentId=${studentId}&graded=true`
+        //  Extract course info from each enrollment
+        const courses = studentEnrollments.map((e) => ({
+          courseId: e.course?.courseId,
+          title: e.course?.title,
+          description: e.course?.description,
+          enrolledAt: e.enrolledAt,
+        }));
+
+        setCourses(courses);
+
+        // Fetch all assignments and filter for this student
+        const assignmentsRes = await api
+          .get(`/assignments`)
+          .catch(() => ({ data: [] }));
+        const allAssignments = assignmentsRes.data || [];
+
+        // Fetch all submissions to check which assignments are already submitted
+        const submissionsRes = await api
+          .get(`/submissions`)
+          .catch(() => ({ data: [] }));
+        const allSubmissions = submissionsRes.data || [];
+
+        // Filter assignments for courses this student is enrolled in
+        const enrolledCourseIds = new Set(courses.map((c) => c.courseId));
+        const studentAssignments = allAssignments.filter((a) =>
+          enrolledCourseIds.has(a.course?.courseId)
         );
-        setRecentGrades(gradesRes.data || []);
+
+        // Get list of assignment IDs that this student has already submitted
+        const submittedAssignmentIds = new Set(
+          allSubmissions
+            .filter((s) => s.student?.userId === studentId)
+            .map((s) => s.assignment?.assignmentId)
+        );
+
+        // Filter pending assignments:
+        // 1. Not submitted yet by this student
+        // (Include all unsubmitted assignments, even if overdue)
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const pending = studentAssignments
+          .filter((a) => {
+            // Skip if already submitted
+            if (submittedAssignmentIds.has(a.assignmentId)) {
+              return false;
+            }
+            // Include all unsubmitted assignments (including overdue ones)
+            return true;
+          })
+          .map((a) => {
+            // Check if overdue for styling purposes
+            let isOverdue = false;
+            if (a.dueDate) {
+              const dueDate = new Date(a.dueDate);
+              dueDate.setHours(0, 0, 0, 0);
+              isOverdue = dueDate < today;
+            }
+            return {
+              assignment_id: a.assignmentId,
+              title: a.title,
+              course_title: a.course?.title || "Unknown",
+              due_date: a.dueDate,
+              isOverdue: isOverdue,
+            };
+          });
+
+        setPendingAssignments(pending);
+
+        // Filter submissions for this student that have grades
+        const gradedSubmissions = allSubmissions.filter(
+          (s) => s.student?.userId === studentId && s.grade != null
+        );
+
+        // Sort by submittedAt (most recent first), then limit to top 5
+        const sortedAndLimited = gradedSubmissions
+          .sort((a, b) => {
+            // Most recent first (newest at top)
+            const dateA = a.submittedAt ? new Date(a.submittedAt).getTime() : 0;
+            const dateB = b.submittedAt ? new Date(b.submittedAt).getTime() : 0;
+            return dateB - dateA; // Descending order (newest first)
+          })
+          .slice(0, 5); // Limit to 5 most recent
+
+        // Map to format expected by UI
+        const grades = sortedAndLimited.map((s) => ({
+          submission_id: s.submissionId,
+          assignment_title: s.assignment?.title || "Unknown",
+          course_title: s.assignment?.course?.title || "Unknown",
+          grade: s.grade,
+          feedback: s.feedback,
+        }));
+
+        setRecentGrades(grades);
       } catch (err) {
         console.error(err);
-        toast.error("Failed to load student dashboard");
+        toast.error("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
@@ -90,15 +180,15 @@ export default function StudentDashboard() {
           >
             {courses.map((c) => (
               <article
-                key={c.course_id}
+                key={c.courseId}
                 role="listitem"
                 aria-label={c.title}
                 tabIndex={0}
-                onClick={() => navigate(`/student/courses/${c.course_id}`)}
+                onClick={() => navigate(`/student/courses/${c.courseId}`)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" || e.key === " ") {
                     e.preventDefault();
-                    navigate(`/student/courses/${c.course_id}`);
+                    navigate(`/student/courses/${c.courseId}`);
                   }
                 }}
                 className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl border border-indigo-100 hover:border-indigo-300 transition-transform hover:scale-[1.02] cursor-pointer focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2 focus:outline-none"
@@ -113,8 +203,8 @@ export default function StudentDashboard() {
                   </p>
                   <p className="text-xs text-gray-500">
                     Enrolled on:{" "}
-                    {c.enrolled_at
-                      ? new Date(c.enrolled_at).toLocaleDateString()
+                    {c.enrolledAt
+                      ? new Date(c.enrolledAt).toLocaleDateString()
                       : "-"}
                   </p>
                 </div>
@@ -158,15 +248,34 @@ export default function StudentDashboard() {
               <tbody>
                 {pendingAssignments.map((a) => (
                   <tr
-                    key={a.assignment_id}
+                    key={a.assignment_id || a.assignmentId}
                     className="border-b hover:bg-indigo-50"
                   >
                     <td className="py-2 px-3">{a.title}</td>
-                    <td className="py-2 px-3">{a.course_title}</td>
                     <td className="py-2 px-3">
-                      {a.due_date
-                        ? new Date(a.due_date).toLocaleDateString()
-                        : "-"}
+                      {a.course_title || a.course?.title}
+                    </td>
+                    <td className="py-2 px-3">
+                      {a.due_date || a.dueDate ? (
+                        <span
+                          className={
+                            a.isOverdue
+                              ? "text-red-600 font-semibold"
+                              : "text-gray-700"
+                          }
+                        >
+                          {new Date(
+                            a.due_date || a.dueDate
+                          ).toLocaleDateString()}
+                          {a.isOverdue && (
+                            <span className="ml-2 text-xs text-red-500">
+                              (Overdue)
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        "-"
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -219,13 +328,13 @@ export default function StudentDashboard() {
                     <td className="py-2 px-3">{g.assignment_title}</td>
                     <td className="py-2 px-3">{g.course_title}</td>
                     <td
-                      className={`py-2 px-3 font-semibold ${
-                        g.grade >= 90
-                          ? "text-green-700"
-                          : g.grade >= 75
-                          ? "text-yellow-600"
-                          : "text-red-600"
-                      }`}
+                      className={`py-2 px-3 font-semibold ${(() => {
+                        const gradeNum = Number(g.grade);
+                        if (isNaN(gradeNum)) return "text-gray-600";
+                        if (gradeNum >= 90) return "text-green-700"; // Excellent (A)
+                        if (gradeNum >= 75) return "text-yellow-600"; // Average (C)
+                        return "text-red-600"; // Low (F/D)
+                      })()}`}
                     >
                       {g.grade !== null && g.grade !== undefined
                         ? `${g.grade}/100`
