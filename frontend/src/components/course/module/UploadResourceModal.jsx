@@ -9,49 +9,50 @@ export default function UploadResourceModal({
   onSuccess,
 }) {
   const [title, setTitle] = useState("");
-  const [fileUrl, setFileUrl] = useState("");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Fetch the logged-in teacher's info
+  // Logged-in teacher info
   const user = JSON.parse(localStorage.getItem("user"));
   const teacherId = user?.userId || user?.user?.userId;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !fileUrl.trim()) {
-      toast.error("Please fill in all fields");
+
+    if (!title.trim() || !file) {
+      toast.error("Please provide both title and file");
       return;
     }
 
     setLoading(true);
-    try {
-      // Payload exactly as backend expects
-      const payload = {
-        title: title.trim(),
-        fileUrl: fileUrl.trim(),
-        course: { courseId },
-        module: { moduleId },
-        uploadedBy: { userId: teacherId },
-      };
 
-      // POST to backend
-      const res = await api.post("/resources", payload);
+    try {
+      const formData = new FormData();
+      formData.append("courseId", courseId);
+      formData.append("moduleId", moduleId);
+      formData.append("uploadedBy", teacherId);
+      formData.append("title", title.trim());
+      formData.append("file", file);
+
+      toast.loading("Uploading resource...", { id: "upload" });
+
+      const res = await api.post("/resources", formData);
 
       if (res.status === 201 || res.status === 200) {
-        toast.success("Resource uploaded successfully!");
-        onSuccess(); // refresh module list
-        onClose(); // close modal
+        toast.success("Resource uploaded successfully!", { id: "upload" });
+        onSuccess();
+        onClose();
       } else {
-        toast.error("Unexpected response from server");
+        toast.error("Unexpected response from server", { id: "upload" });
       }
     } catch (err) {
       console.error("Error uploading resource:", err);
       if (err.response?.status === 403) {
-        toast.error("Unauthorized: Only teachers can upload resources");
+        toast.error("Unauthorized: Only teachers can upload", { id: "upload" });
       } else if (err.response?.status === 400) {
-        toast.error("Invalid request format");
+        toast.error("Invalid request format", { id: "upload" });
       } else {
-        toast.error("Failed to upload resource");
+        toast.error("Failed to upload resource", { id: "upload" });
       }
     } finally {
       setLoading(false);
@@ -66,8 +67,9 @@ export default function UploadResourceModal({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
               Resource Title
             </label>
             <input
@@ -80,20 +82,34 @@ export default function UploadResourceModal({
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              File URL (Direct link to PDF, DOC, etc.)
-            </label>
+          {/* Drag & Drop File Upload */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const droppedFile = e.dataTransfer.files[0];
+              if (droppedFile) setFile(droppedFile);
+            }}
+            className="border-2 border-dashed rounded-lg w-full p-5 text-center cursor-pointer hover:border-indigo-400 transition-colors"
+          >
             <input
-              type="url"
-              value={fileUrl}
-              onChange={(e) => setFileUrl(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400"
-              placeholder="https://example.com/resource.pdf"
-              required
+              type="file"
+              id="fileUpload"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="hidden"
             />
+            <label
+              htmlFor="fileUpload"
+              className="cursor-pointer text-indigo-600 font-medium"
+            >
+              {file
+                ? `Selected: ${file.name}`
+                : "Click or drag & drop a file here"}
+            </label>
           </div>
 
+          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"

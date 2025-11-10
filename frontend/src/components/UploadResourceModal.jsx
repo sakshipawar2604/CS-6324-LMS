@@ -1,6 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import api from "../../../services/http"; // ✅ make sure this path exists
+import api from "../services/http";
 
 export default function UploadResourceModal({
   moduleId,
@@ -9,42 +9,45 @@ export default function UploadResourceModal({
   onSuccess,
 }) {
   const [title, setTitle] = useState("");
-  const [fileUrl, setFileUrl] = useState("");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch the logged-in teacher’s info
+  // Get logged-in teacher info
   const user = JSON.parse(localStorage.getItem("user"));
-  const teacherId = user?.userId || user?.user?.userId;
+  const uploadedBy = user?.userId || user?.user?.userId;
 
-  // 🔹 Submit handler
+  // Submit handler
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!title.trim() || !fileUrl.trim()) {
-      toast.error("Please fill in all fields");
+    if (!title.trim() || !file) {
+      toast.error("Please provide both title and file");
       return;
     }
 
     setLoading(true);
     try {
-      // ✅ Payload exactly as backend expects
-      const payload = {
-        title: title.trim(),
-        fileUrl: fileUrl.trim(),
-        course: { courseId },
-        module: { moduleId },
-        uploadedBy: { userId: teacherId },
-      };
+      // Build multipart/form-data
+      const formData = new FormData();
+      formData.append("courseId", courseId);
+      formData.append("moduleId", moduleId);
+      formData.append("uploadedBy", uploadedBy);
+      formData.append("title", title.trim());
+      formData.append("file", file);
 
-      // ✅ POST to backend
-      const res = await api.post("/resources", payload);
+      toast.loading("Uploading resource...", { id: "upload" });
 
-      if (res.status === 201 || res.status === 200) {
-        toast.success("Resource uploaded successfully!");
-        onSuccess(); // refresh module list
-        onClose(); // close modal
+      // POST to backend
+      const res = await api.post("/resources", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (res.status === 200 || res.status === 201) {
+        toast.success("Resource uploaded successfully!", { id: "upload" });
+        onSuccess();
+        onClose();
       } else {
-        toast.error("Unexpected response from server");
+        toast.error("Unexpected response from server", { id: "upload" });
       }
     } catch (err) {
       console.error("Error uploading resource:", err);
@@ -60,7 +63,7 @@ export default function UploadResourceModal({
     }
   };
 
-  // 🔹 UI
+  // UI
   return (
     <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
@@ -91,8 +94,8 @@ export default function UploadResourceModal({
             </label>
             <input
               type="url"
-              value={fileUrl}
-              onChange={(e) => setFileUrl(e.target.value)}
+              value={file}
+              onChange={(e) => setFile(e.target.value)}
               className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400"
               placeholder="https://example.com/resource.pdf"
               required

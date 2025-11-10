@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../services/http";
+import { getFileViewerUrl } from "../utils/s3Utils";
 
 export default function SubmitAssignmentModal({
   assignment,
@@ -16,6 +17,7 @@ export default function SubmitAssignmentModal({
   const userId =
     user?.user?.userId || user?.userId || user?.id || user?.user_id;
 
+  // Fetch if the student already submitted
   const fetchExistingSubmission = async () => {
     try {
       const res = await api.get("/submissions");
@@ -25,9 +27,7 @@ export default function SubmitAssignmentModal({
           s.assignment?.assignmentId === assignment.assignmentId &&
           s.student?.userId === userId
       );
-      if (found) {
-        setExistingSubmission(found);
-      }
+      if (found) setExistingSubmission(found);
     } catch (err) {
       console.error("Failed to fetch existing submission", err);
     }
@@ -98,7 +98,7 @@ export default function SubmitAssignmentModal({
             <input
               type="file"
               id="fileUpload"
-              accept=".pdf,.doc,.docx,.zip,image/*"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
               onChange={(e) => setFile(e.target.files[0])}
               className="hidden"
             />
@@ -108,16 +108,30 @@ export default function SubmitAssignmentModal({
             >
               {file
                 ? `Selected: ${file.name}`
-                : "Click or drag & drop your file here"}
+                : "Click or drag & drop a new file to replace existing one"}
             </label>
+            {/* Show existing file if no new file chosen */}
+            {existingSubmission?.submissionUrl && !file && (
+              <p className="text-xs text-gray-500 mt-1">
+                Current:{" "}
+                <a
+                  href={getFileViewerUrl(existingSubmission.submissionUrl)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 underline"
+                >
+                  {existingSubmission.submissionUrl.split("/").pop()}
+                </a>
+              </p>
+            )}
           </div>
 
           {/* Existing submission info */}
           {existingSubmission && (
             <p className="text-sm text-gray-600 text-center">
               You’ve already submitted once. Uploading again will{" "}
-              <span className="font-semibold text-indigo-600">update</span> your
-              submission.
+              <span className="font-semibold text-indigo-600">replace</span>{" "}
+              your current file.
             </p>
           )}
 

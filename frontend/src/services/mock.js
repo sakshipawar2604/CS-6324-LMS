@@ -333,21 +333,21 @@ export function setupMocks() {
   // });
 
   // Upload new resource
-  mock.onPost(/\/courses\/.*\/modules$/).reply((config) => {
-    const formData = config.data;
-    const file = formData.get("file");
-    const title = formData.get("title");
-    console.log(" Mock upload resource:", title, file?.name);
-    return [
-      201,
-      {
-        resource_id: "R" + Math.floor(Math.random() * 1000),
-        title,
-        url: `https://mock-storage.com/modules/${file?.name || "newfile.pdf"}`,
-        uploaded_at: new Date().toISOString(),
-      },
-    ];
-  });
+  // mock.onPost(/\/courses\/.*\/modules$/).reply((config) => {
+  //   const formData = config.data;
+  //   const file = formData.get("file");
+  //   const title = formData.get("title");
+  //   console.log(" Mock upload resource:", title, file?.name);
+  //   return [
+  //     201,
+  //     {
+  //       resource_id: "R" + Math.floor(Math.random() * 1000),
+  //       title,
+  //       url: `https://mock-storage.com/modules/${file?.name || "newfile.pdf"}`,
+  //       uploaded_at: new Date().toISOString(),
+  //     },
+  //   ];
+  // });
 
   // ---- ADMIN USERS MANAGEMENT ----
   // mock.onGet("/admin/users").reply(200, [

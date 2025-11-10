@@ -1,36 +1,47 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../../../services/http";
+import { getFileViewerUrl } from "../../../utils/s3Utils";
 
 export default function EditResourceModal({ resource, onClose, onSuccess }) {
   const [title, setTitle] = useState(resource.title || "");
-  const [fileUrl, setFileUrl] = useState(resource.fileUrl || "");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Extract existing IDs safely
+  const courseId = resource.course?.courseId || 1;
+  const moduleId = resource.module?.moduleId || 1;
+  const uploadedBy =
+    resource.uploadedBy?.userId ||
+    JSON.parse(localStorage.getItem("user"))?.userId ||
+    2;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title || !fileUrl) {
-      toast.error("Please fill out all fields");
+    if (!title.trim()) {
+      toast.error("Please enter a title");
       return;
     }
 
     setLoading(true);
     try {
-      const payload = {
-        title,
-        fileUrl,
-        course: { courseId: resource.course?.courseId || 1 },
-        module: { moduleId: resource.module?.moduleId || 1 },
-        uploadedBy: { userId: resource.uploadedBy?.userId || 2 },
-      };
+      const formData = new FormData();
+      formData.append("courseId", courseId);
+      formData.append("moduleId", moduleId);
+      formData.append("uploadedBy", uploadedBy);
+      formData.append("title", title.trim());
+      if (file) formData.append("file", file);
 
-      await api.put(`/resources/${resource.resourceId}`, payload);
-      toast.success("Resource updated successfully!");
+      toast.loading("Updating resource...", { id: "update" });
+
+      await api.put(`/resources/${resource.resourceId}`, formData);
+
+      toast.success("Resource updated successfully!", { id: "update" });
       onSuccess();
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update resource");
+      toast.error("Failed to update resource", { id: "update" });
     } finally {
       setLoading(false);
     }
@@ -44,6 +55,7 @@ export default function EditResourceModal({ resource, onClose, onSuccess }) {
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Title Field */}
           <div>
             <label className="block text-sm font-medium text-gray-700">
               Title
@@ -57,25 +69,53 @@ export default function EditResourceModal({ resource, onClose, onSuccess }) {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              File URL
-            </label>
+          {/* Drag & Drop File Upload */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const droppedFile = e.dataTransfer.files[0];
+              if (droppedFile) setFile(droppedFile);
+            }}
+            className="border-2 border-dashed rounded-lg w-full p-5 text-center cursor-pointer hover:border-indigo-400 transition-colors"
+          >
             <input
-              type="url"
-              value={fileUrl}
-              onChange={(e) => setFileUrl(e.target.value)}
-              placeholder="http://domain/file.pdf"
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400"
-              required
+              type="file"
+              id="fileUpload"
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="hidden"
             />
+            <label
+              htmlFor="fileUpload"
+              className="cursor-pointer text-indigo-600 font-medium"
+            >
+              {file
+                ? `Selected: ${file.name}`
+                : "Click or drag & drop a new file to replace existing one"}
+            </label>
+            {resource.fileUrl && !file && (
+              <p className="text-xs text-gray-500 mt-1">
+                Current:{" "}
+                <a
+                  href={getFileViewerUrl(resource.fileUrl || resource.fileKey)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 underline"
+                >
+                  {(resource.fileUrl || resource.fileKey)?.split("/").pop()}
+                </a>
+              </p>
+            )}
           </div>
 
+          {/* Buttons */}
           <div className="flex justify-end gap-3 mt-4">
             <button
               type="button"
               onClick={onClose}
               className="px-4 py-2 rounded-md bg-gray-300 hover:bg-gray-400"
+              disabled={loading}
             >
               Cancel
             </button>

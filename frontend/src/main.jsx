@@ -5,8 +5,8 @@ import App from "./App";
 import "./index.css";
 import { Toaster } from "react-hot-toast";
 
-import { setupMocks } from "./services/mock";
-setupMocks();
+// import { setupMocks } from "./services/mock";
+// setupMocks();
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
