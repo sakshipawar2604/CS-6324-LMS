@@ -8,16 +8,14 @@ export default function SubmitAssignmentModal({
   onClose,
   onSuccess,
 }) {
-  const [submissionUrl, setSubmissionUrl] = useState("");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [existingSubmission, setExistingSubmission] = useState(null);
 
-  // Get current student info
   const user = JSON.parse(localStorage.getItem("user"));
-  const studentId =
+  const userId =
     user?.user?.userId || user?.userId || user?.id || user?.user_id;
 
-  // Check if the student already submitted for this assignment
   const fetchExistingSubmission = async () => {
     try {
       const res = await api.get("/submissions");
@@ -25,11 +23,10 @@ export default function SubmitAssignmentModal({
       const found = all.find(
         (s) =>
           s.assignment?.assignmentId === assignment.assignmentId &&
-          s.student?.userId === studentId
+          s.student?.userId === userId
       );
       if (found) {
         setExistingSubmission(found);
-        setSubmissionUrl(found.submissionUrl || "");
       }
     } catch (err) {
       console.error("Failed to fetch existing submission", err);
@@ -40,38 +37,40 @@ export default function SubmitAssignmentModal({
     fetchExistingSubmission();
   }, []);
 
-  // Handle create or update
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!submissionUrl.trim()) {
-      toast.error("Please enter a valid submission URL");
+    if (!file) {
+      toast.error("Please select a file to submit");
       return;
     }
 
     setLoading(true);
     try {
-      const payload = {
-        assignment: { assignmentId: assignment.assignmentId },
-        student: { userId: studentId },
-        submissionUrl: submissionUrl.trim(),
-      };
+      const formData = new FormData();
+      formData.append("userId", userId);
+      formData.append("assignmentId", assignment.assignmentId);
+      formData.append("file", file);
+
+      toast.loading(existingSubmission ? "Updating..." : "Submitting...", {
+        id: "submit",
+      });
 
       if (existingSubmission) {
         await api.put(
-          `/submissions/${existingSubmission.submissionId}`,
-          payload
+          `/submissions/forStudent/${existingSubmission.submissionId}`,
+          formData
         );
-        toast.success("Submission updated successfully!");
+        toast.success("Submission updated successfully!", { id: "submit" });
       } else {
-        await api.post("/submissions", payload);
-        toast.success("Assignment submitted successfully!");
+        await api.post("/submissions", formData);
+        toast.success("Assignment submitted successfully!", { id: "submit" });
       }
 
       onSuccess();
       onClose();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to save submission");
+      toast.error("Failed to save submission", { id: "submit" });
     } finally {
       setLoading(false);
     }
@@ -81,25 +80,46 @@ export default function SubmitAssignmentModal({
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
         <h2 className="text-lg font-semibold text-indigo-700 mb-4">
-          {existingSubmission ? "Update Submission" : "Submit Assignment"} -{" "}
+          {existingSubmission ? "Update Submission" : "Submit Assignment"} –{" "}
           {assignment.title}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Submission URL field */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Submission URL (e.g., Google Drive / GitHub / PDF link)
-            </label>
+          {/* Drag & Drop File Upload */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const droppedFile = e.dataTransfer.files[0];
+              if (droppedFile) setFile(droppedFile);
+            }}
+            className="border-2 border-dashed rounded-lg w-full p-5 text-center cursor-pointer hover:border-indigo-400 transition-colors"
+          >
             <input
-              type="url"
-              placeholder="http://domain/submission.pdf"
-              value={submissionUrl}
-              onChange={(e) => setSubmissionUrl(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400"
-              required
+              type="file"
+              id="fileUpload"
+              accept=".pdf,.doc,.docx,.zip,image/*"
+              onChange={(e) => setFile(e.target.files[0])}
+              className="hidden"
             />
+            <label
+              htmlFor="fileUpload"
+              className="cursor-pointer text-indigo-600 font-medium"
+            >
+              {file
+                ? `Selected: ${file.name}`
+                : "Click or drag & drop your file here"}
+            </label>
           </div>
+
+          {/* Existing submission info */}
+          {existingSubmission && (
+            <p className="text-sm text-gray-600 text-center">
+              You’ve already submitted once. Uploading again will{" "}
+              <span className="font-semibold text-indigo-600">update</span> your
+              submission.
+            </p>
+          )}
 
           {/* Buttons */}
           <div className="flex justify-between items-center mt-4">

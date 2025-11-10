@@ -13,6 +13,16 @@ export default function TeacherDashboard() {
       try {
         const storedUser = JSON.parse(localStorage.getItem("user"));
         const teacherId = storedUser?.userId;
+
+        if (!teacherId) {
+          toast.error("User information not found");
+          setLoading(false);
+          return;
+        }
+
+        // Check if threshold is valid
+        const validThreshold = threshold && !isNaN(threshold) ? threshold : 70; // Default to 70 if not set
+
         // Fetch all courses once
         const { data: allCourses } = await api.get("/courses");
         // Filter courses created by the logged-in teacher
@@ -20,26 +30,56 @@ export default function TeacherDashboard() {
           (course) => course.createdBy?.userId === teacherId
         );
         setCourses(teacherCourses);
+
+        // Only fetch performance if there are courses
+        if (teacherCourses.length === 0) {
+          setPerformance([]);
+          setLoading(false);
+          return;
+        }
+
         // Fetch performance data for all teacher's courses in parallel
-        const performanceResponses = await Promise.all(
-          teacherCourses.map((course) =>
-            api.get(
-              `/courses/coursePerformanceByCourseId/${course.courseId}/${threshold}`
+        // Use Promise.allSettled to handle individual failures gracefully
+        const performancePromises = teacherCourses.map((course) =>
+          api
+            .get(
+              `/courses/coursePerformanceByCourseId/${course.courseId}/${validThreshold}`
             )
-          )
+            .then((res) => res.data)
+            .catch((err) => {
+              console.error(
+                `Failed to fetch performance for course ${course.courseId}:`,
+                err
+              );
+              return null; // Return null for failed requests
+            })
         );
-        // Extract data from all responses
-        const performanceData = performanceResponses.map((res) => res.data);
+
+        const performanceResults = await Promise.all(performancePromises);
+        // Filter out null values (failed requests) and only keep successful responses
+        const performanceData = performanceResults.filter(
+          (item) => item !== null
+        );
         setPerformance(performanceData);
+
+        // Show warning if some requests failed
+        if (performanceData.length < teacherCourses.length) {
+          console.warn(
+            `Only ${performanceData.length} out of ${teacherCourses.length} performance data loaded`
+          );
+        }
       } catch (err) {
-        console.error(err);
-        toast.error("Failed to load dashboard data");
+        console.error("Dashboard fetch error:", err);
+        toast.error(
+          err.response?.data?.message || "Failed to load dashboard data"
+        );
+        setPerformance([]);
       } finally {
         setLoading(false);
       }
     };
     fetchDashboard();
-  }, []);
+  }, [threshold]);
 
   return (
     <div id="main-content" className="space-y-8">

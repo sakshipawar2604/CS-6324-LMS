@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../../services/http";
+import { getFileViewerUrl } from "../../utils/s3Utils";
 
 export default function AssignmentSubmissions({ assignment, onBack }) {
   const [submissions, setSubmissions] = useState([]);
@@ -38,29 +39,27 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
         return;
       }
 
-      // Build updated payload based on your backend's expected format
-      const updatedSubmission = {
-        assignment: { assignmentId: submission.assignment.assignmentId },
-        student: { userId: submission.student.userId },
-        submissionUrl: submission.submissionUrl,
-        grade: numericGrade,
-        feedback: feedback,
-      };
+      const formData = new FormData();
+      formData.append("userId", submission.student.userId);
+      formData.append("assignmentId", submission.assignment.assignmentId);
+      formData.append("feedback", feedback || "");
+      formData.append("grades", numericGrade);
 
-      // ✅ PUT request
+      toast.loading("Updating grade...", { id: "grade" });
+
       await api.put(
-        `/submissions/${submission.submissionId}`,
-        updatedSubmission
+        `/submissions/forTeacher/${submission.submissionId}`,
+        formData
       );
 
-      toast.success("Grade updated successfully!");
+      toast.success("Grade updated successfully!", { id: "grade" });
       setGrading(null);
       setGrade("");
       setFeedback("");
       fetchSubmissions();
     } catch (err) {
       console.error(err);
-      toast.error("Failed to update grade");
+      toast.error("Failed to update grade", { id: "grade" });
     }
   };
 
@@ -115,14 +114,18 @@ export default function AssignmentSubmissions({ assignment, onBack }) {
                     : "—"}
                 </td>
                 <td className="px-4 py-2">
-                  <a
-                    href={s.submissionUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-indigo-600 hover:underline"
-                  >
-                    View File
-                  </a>
+                  {s.submissionUrl ? (
+                    <a
+                      href={getFileViewerUrl(s.submissionUrl)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 hover:underline"
+                    >
+                      View File
+                    </a>
+                  ) : (
+                    <span className="text-gray-400">No file</span>
+                  )}
                 </td>
                 <td className="px-4 py-2">
                   {s.grade != null ? `${s.grade}/100` : "—"}

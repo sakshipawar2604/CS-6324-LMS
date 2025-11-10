@@ -89,7 +89,10 @@ export default function StudentDashboard() {
             // Check if overdue for styling purposes
             let isOverdue = false;
             if (a.dueDate) {
-              const dueDate = new Date(a.dueDate);
+              // Parse date string as local date to avoid timezone issues
+              const dateStr = a.dueDate.split("T")[0]; // Remove time part if present
+              const [year, month, day] = dateStr.split("-").map(Number);
+              const dueDate = new Date(year, month - 1, day); // month is 0-indexed
               dueDate.setHours(0, 0, 0, 0);
               isOverdue = dueDate < today;
             }
@@ -264,9 +267,17 @@ export default function StudentDashboard() {
                               : "text-gray-700"
                           }
                         >
-                          {new Date(
-                            a.due_date || a.dueDate
-                          ).toLocaleDateString()}
+                          {(() => {
+                            // Parse date string (YYYY-MM-DD) as local date to avoid timezone issues
+                            const dateStr = (a.due_date || a.dueDate).split(
+                              "T"
+                            )[0];
+                            const [year, month, day] = dateStr
+                              .split("-")
+                              .map(Number);
+                            const date = new Date(year, month - 1, day);
+                            return date.toLocaleDateString();
+                          })()}
                           {a.isOverdue && (
                             <span className="ml-2 text-xs text-red-500">
                               (Overdue)

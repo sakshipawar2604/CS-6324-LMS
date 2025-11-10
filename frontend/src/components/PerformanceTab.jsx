@@ -14,7 +14,7 @@ export default function PerformanceTab({ courseId, studentId, role }) {
       try {
         if (role === "teacher") {
           const res = await api.get(
-            `/submissions/averageGradesOfStudentsInACourse/${courseId}`
+            `/courses/averageGradesOfStudentsInACourse/${courseId}`
           );
           setStudentList(res.data || []);
         } else if (role === "student") {
