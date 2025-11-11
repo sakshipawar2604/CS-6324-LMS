@@ -231,7 +231,10 @@ export default function ManageUsers() {
                   htmlFor="user-fullName"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Full Name
+                  Full Name{" "}
+                  <span className="text-red-500" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <input
                   id="user-fullName"
@@ -242,6 +245,7 @@ export default function ManageUsers() {
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
+                  aria-required="true"
                 />
               </div>
 
@@ -250,7 +254,10 @@ export default function ManageUsers() {
                   htmlFor="user-email"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Email
+                  Email{" "}
+                  <span className="text-red-500" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <input
                   id="user-email"
@@ -261,6 +268,7 @@ export default function ManageUsers() {
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
+                  aria-required="true"
                 />
               </div>
 
@@ -269,7 +277,10 @@ export default function ManageUsers() {
                   htmlFor="user-password"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Password (hash)
+                  Password{" "}
+                  <span className="text-red-500" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <input
                   id="user-password"
@@ -280,6 +291,7 @@ export default function ManageUsers() {
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
+                  aria-required="true"
                 />
               </div>
 
@@ -288,7 +300,10 @@ export default function ManageUsers() {
                   htmlFor="user-role"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Role
+                  Role{" "}
+                  <span className="text-red-500" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <select
                   id="user-role"
@@ -298,6 +313,7 @@ export default function ManageUsers() {
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
+                  aria-required="true"
                 >
                   <option value="">Select a role</option>
                   <option value="1">Admin</option>

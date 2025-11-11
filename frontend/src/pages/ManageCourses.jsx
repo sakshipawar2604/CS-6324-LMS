@@ -65,8 +65,8 @@ export default function ManageCourses() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.title || !formData.description || !formData.createdBy) {
-      toast.error("Please fill all fields");
+    if (!formData.title || !formData.createdBy) {
+      toast.error("Please fill all required fields");
       return;
     }
 
@@ -222,7 +222,10 @@ export default function ManageCourses() {
                   htmlFor="course-title"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Title
+                  Title{" "}
+                  <span className="text-red-500" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <input
                   id="course-title"
@@ -233,6 +236,7 @@ export default function ManageCourses() {
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
+                  aria-required="true"
                 />
               </div>
 
@@ -250,7 +254,7 @@ export default function ManageCourses() {
                     setFormData({ ...formData, description: e.target.value })
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
-                  required
+                  rows="3"
                 />
               </div>
 
@@ -259,7 +263,10 @@ export default function ManageCourses() {
                   htmlFor="course-teacher"
                   className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Assign Teacher
+                  Assign Teacher{" "}
+                  <span className="text-red-500" aria-label="required">
+                    *
+                  </span>
                 </label>
                 <select
                   id="course-teacher"
@@ -269,6 +276,7 @@ export default function ManageCourses() {
                   }
                   className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
                   required
+                  aria-required="true"
                 >
                   <option value="">Select a Teacher</option>
                   {teachers.map((t) => (

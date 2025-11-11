@@ -1,4 +1,11 @@
-import { BarChart3, FileText, ExternalLink, Users } from "lucide-react";
+import {
+  BarChart3,
+  FileText,
+  ExternalLink,
+  Users,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import api from "../services/http";
 import toast from "react-hot-toast";
@@ -8,6 +15,8 @@ export default function PerformanceTab({ courseId, studentId, role }) {
   const [recommendations, setRecommendations] = useState([]);
   const [studentList, setStudentList] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -17,6 +26,8 @@ export default function PerformanceTab({ courseId, studentId, role }) {
             `/courses/averageGradesOfStudentsInACourse/${courseId}`
           );
           setStudentList(res.data || []);
+          // Reset to page 1 when new data is loaded
+          setCurrentPage(1);
         } else if (role === "student") {
           // Student: Fetch own performance and recommendations
           const [perfRes, recRes] = await Promise.all([
@@ -42,6 +53,16 @@ export default function PerformanceTab({ courseId, studentId, role }) {
     }
   }, [courseId, studentId, role]);
 
+  // Reset to page 1 if current page is out of bounds
+  useEffect(() => {
+    if (role === "teacher" && studentList.length > 0) {
+      const totalPages = Math.ceil(studentList.length / itemsPerPage);
+      if (currentPage > totalPages && totalPages > 0) {
+        setCurrentPage(1);
+      }
+    }
+  }, [studentList.length, itemsPerPage, currentPage, role]);
+
   if (loading) {
     return (
       <p className="text-gray-500 animate-pulse">Loading performance data...</p>
@@ -56,19 +77,68 @@ export default function PerformanceTab({ courseId, studentId, role }) {
       );
     }
 
+    // Pagination calculations
+    const totalPages = Math.ceil(studentList.length / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const currentStudents = studentList.slice(startIndex, endIndex);
+
+    const handlePageChange = (page) => {
+      if (page >= 1 && page <= totalPages) {
+        setCurrentPage(page);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    };
+
+    const getPageNumbers = () => {
+      const pages = [];
+      const maxVisiblePages = 5;
+
+      if (totalPages <= maxVisiblePages) {
+        // Show all pages if total pages is less than max visible
+        for (let i = 1; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        // Show pages around current page
+        if (currentPage <= 3) {
+          // Show first pages
+          for (let i = 1; i <= 5; i++) {
+            pages.push(i);
+          }
+        } else if (currentPage >= totalPages - 2) {
+          // Show last pages
+          for (let i = totalPages - 4; i <= totalPages; i++) {
+            pages.push(i);
+          }
+        } else {
+          // Show pages around current
+          for (let i = currentPage - 2; i <= currentPage + 2; i++) {
+            pages.push(i);
+          }
+        }
+      }
+      return pages;
+    };
+
     return (
       <section className="space-y-4">
-        <div className="flex items-center gap-3 mb-4">
-          <Users className="w-5 h-5 text-indigo-600" />
-          <h2 className="text-lg font-semibold text-gray-800">
-            Student Performance Overview
-          </h2>
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Users className="w-5 h-5 text-indigo-600" />
+            <h2 className="text-lg font-semibold text-gray-800">
+              Student Performance Overview
+            </h2>
+          </div>
+          <p className="text-sm text-gray-600">
+            Showing {startIndex + 1}-{Math.min(endIndex, studentList.length)} of{" "}
+            {studentList.length} students
+          </p>
         </div>
 
         <div className="space-y-4">
-          {studentList.map((student) => {
+          {currentStudents.map((student) => {
             const grade = student.averagePercentage;
-            console.log("grade:-", grade);
             const color =
               grade >= 70
                 ? "bg-green-500"
@@ -125,6 +195,47 @@ export default function PerformanceTab({ courseId, studentId, role }) {
             );
           })}
         </div>
+
+        {/* Pagination Controls */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-gray-200">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-1">
+              {getPageNumbers().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                    currentPage === page
+                      ? "bg-indigo-600 text-white"
+                      : "border border-gray-300 hover:bg-gray-50 text-gray-700"
+                  }`}
+                  aria-label={`Go to page ${page}`}
+                  aria-current={currentPage === page ? "page" : undefined}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
+
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        )}
       </section>
     );
   }

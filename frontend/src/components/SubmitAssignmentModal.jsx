@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import api from "../services/http";
 import { getFileViewerUrl } from "../utils/s3Utils";
+import { FileText, ExternalLink } from "lucide-react";
 
 export default function SubmitAssignmentModal({
   assignment,
@@ -85,55 +86,75 @@ export default function SubmitAssignmentModal({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Show current file if exists and no new file selected */}
+          {existingSubmission?.submissionUrl && !file && (
+            <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-gray-600" />
+                  <span className="text-sm text-gray-700 font-medium">
+                    Current submission:
+                  </span>
+                  <a
+                    href={getFileViewerUrl(existingSubmission.submissionUrl)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-indigo-600 hover:text-indigo-800 hover:underline flex items-center gap-1"
+                  >
+                    {existingSubmission.submissionUrl.split("/").pop()}
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Drag & Drop File Upload */}
-          <div
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              const droppedFile = e.dataTransfer.files[0];
-              if (droppedFile) setFile(droppedFile);
-            }}
-            className="border-2 border-dashed rounded-lg w-full p-5 text-center cursor-pointer hover:border-indigo-400 transition-colors"
-          >
-            <input
-              type="file"
-              id="fileUpload"
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="hidden"
-            />
-            <label
-              htmlFor="fileUpload"
-              className="cursor-pointer text-indigo-600 font-medium"
-            >
-              {file
-                ? `Selected: ${file.name}`
-                : "Click or drag & drop a new file to replace existing one"}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              File
             </label>
-            {/* Show existing file if no new file chosen */}
-            {existingSubmission?.submissionUrl && !file && (
-              <p className="text-xs text-gray-500 mt-1">
-                Current:{" "}
-                <a
-                  href={getFileViewerUrl(existingSubmission.submissionUrl)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 underline"
-                >
-                  {existingSubmission.submissionUrl.split("/").pop()}
-                </a>
+            <div
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                const droppedFile = e.dataTransfer.files[0];
+                if (droppedFile) setFile(droppedFile);
+              }}
+              className="border-2 border-dashed rounded-lg w-full p-5 text-center cursor-pointer hover:border-indigo-400 transition-colors"
+            >
+              <input
+                type="file"
+                id="fileUpload"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="hidden"
+              />
+              <label
+                htmlFor="fileUpload"
+                className="cursor-pointer text-indigo-600 font-medium"
+              >
+                {file
+                  ? `Selected: ${file.name}`
+                  : existingSubmission?.submissionUrl
+                  ? "Click or drag & drop a new file to replace existing one"
+                  : "Click or drag & drop a file here"}
+              </label>
+            </div>
+
+            {/* Show replacement message when a new file is selected */}
+            {existingSubmission?.submissionUrl && file && (
+              <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
+                <span>⚠️</span>
+                <span>
+                  Uploading a new file will replace the current submission:{" "}
+                  <span className="font-medium">
+                    {existingSubmission.submissionUrl.split("/").pop()}
+                  </span>
+                </span>
               </p>
             )}
           </div>
-
-          {/* Existing submission info */}
-          {existingSubmission && (
-            <p className="text-sm text-gray-600 text-center">
-              You’ve already submitted once. Uploading again will{" "}
-              <span className="font-semibold text-indigo-600">replace</span>{" "}
-              your current file.
-            </p>
-          )}
 
           {/* Buttons */}
           <div className="flex justify-between items-center mt-4">

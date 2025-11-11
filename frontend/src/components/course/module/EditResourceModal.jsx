@@ -1,7 +1,6 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import api from "../../../services/http";
-import { getFileViewerUrl } from "../../../utils/s3Utils";
 
 export default function EditResourceModal({ resource, onClose, onSuccess }) {
   const [title, setTitle] = useState(resource.title || "");
@@ -57,54 +56,69 @@ export default function EditResourceModal({ resource, onClose, onSuccess }) {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Title Field */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Title
             </label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-colors"
               required
             />
           </div>
 
-          {/* Drag & Drop File Upload */}
-          <div
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={(e) => {
-              e.preventDefault();
-              const droppedFile = e.dataTransfer.files[0];
-              if (droppedFile) setFile(droppedFile);
-            }}
-            className="border-2 border-dashed rounded-lg w-full p-5 text-center cursor-pointer hover:border-indigo-400 transition-colors"
-          >
-            <input
-              type="file"
-              id="fileUpload"
-              accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
-              onChange={(e) => setFile(e.target.files[0])}
-              className="hidden"
-            />
-            <label
-              htmlFor="fileUpload"
-              className="cursor-pointer text-indigo-600 font-medium"
-            >
-              {file
-                ? `Selected: ${file.name}`
-                : "Click or drag & drop a new file to replace existing one"}
+          {/* File Section */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1.5">
+              File
             </label>
-            {resource.fileUrl && !file && (
-              <p className="text-xs text-gray-500 mt-1">
-                Current:{" "}
-                <a
-                  href={getFileViewerUrl(resource.fileUrl || resource.fileKey)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 underline"
-                >
-                  {(resource.fileUrl || resource.fileKey)?.split("/").pop()}
-                </a>
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const file = e.dataTransfer.files[0];
+                if (file) {
+                  setFile(file);
+                }
+              }}
+              className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-indigo-400 hover:bg-indigo-50 transition-colors"
+            >
+              <input
+                type="file"
+                id="fileUpload"
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.zip,image/*"
+                onChange={(e) => setFile(e.target.files[0])}
+                className="hidden"
+              />
+              <label htmlFor="fileUpload" className="cursor-pointer block">
+                {file ? (
+                  <span className="text-sm text-indigo-600 font-medium">
+                    {file.name}
+                  </span>
+                ) : (
+                  <span className="text-sm text-gray-600">
+                    Click or drag & drop to upload file
+                  </span>
+                )}
+              </label>
+            </div>
+            {file && (
+              <p className="text-xs text-gray-500 mt-1 text-center">
+                Click to change file
+              </p>
+            )}
+            {file && (resource.fileKey || resource.fileUrl) && (
+              <p className="text-xs text-amber-600 mt-2 text-center">
+                ⚠️ Uploading a new file will replace the current file.
               </p>
             )}
           </div>

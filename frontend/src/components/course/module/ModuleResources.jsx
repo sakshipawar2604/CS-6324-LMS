@@ -3,6 +3,7 @@ import api from "../../../services/http";
 import toast from "react-hot-toast";
 import UploadResourceModal from "./UploadResourceModal";
 import EditResourceModal from "./EditResourceModal";
+import { getFileViewerUrl } from "../../../utils/s3Utils";
 
 export default function ModuleResources({ role, moduleId, courseId }) {
   const [resources, setResources] = useState([]);
@@ -84,9 +85,9 @@ export default function ModuleResources({ role, moduleId, courseId }) {
 
               <div className="flex items-center gap-4">
                 <a
-                  href={r.fileUrl}
+                  href={getFileViewerUrl(r.fileKey || r.fileUrl)}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="text-indigo-600 hover:underline text-sm"
                 >
                   View
