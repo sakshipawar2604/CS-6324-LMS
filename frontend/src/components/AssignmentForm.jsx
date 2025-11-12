@@ -55,7 +55,10 @@ export default function AssignmentForm({
       formData.append("dueDate", form.dueDate);
       if (form.file) formData.append("file", form.file); // from file upload
 
-      toast.loading(existing ? "Updating..." : "Creating...", { id: "save" });
+      // Some test environments mock only success/error; guard loading
+      if (typeof toast.loading === "function") {
+        toast.loading(existing ? "Updating..." : "Creating...", { id: "save" });
+      }
 
       if (existing) {
         await api.put(`/assignments/${existing.assignmentId}`, formData);
