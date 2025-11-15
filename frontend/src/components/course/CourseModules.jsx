@@ -98,12 +98,6 @@ export default function CourseModules({ role, courseId }) {
                           {m.description}
                         </p>
                       )}
-                      <p className="text-xs text-gray-500">
-                        Uploaded on{" "}
-                        {m.createdAt
-                          ? new Date(m.createdAt).toLocaleDateString()
-                          : "—"}
-                      </p>
                     </div>
                     <span className="text-indigo-600 text-sm hover:bg-indigo-100 rounded-md p-1 ml-4">
                       {expandedModule === m.moduleId ? "▲ Hide" : "▼ Show"}

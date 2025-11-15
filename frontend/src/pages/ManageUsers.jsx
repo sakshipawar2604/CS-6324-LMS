@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import api from "../services/http";
 import toast from "react-hot-toast";
 import { useLocation } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function ManageUsers() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // Modal form state
   const [formData, setFormData] = useState({
@@ -51,6 +53,7 @@ export default function ManageUsers() {
   // Open modal (create or edit)
   const openModal = (user = null) => {
     setSelectedUser(user);
+    setShowPassword(false); // Reset password visibility when opening modal
     if (user) {
       setFormData({
         fullName: user.fullName,
@@ -105,6 +108,7 @@ export default function ManageUsers() {
       setShowModal(false);
       setSelectedUser(null);
       setFormData({ fullName: "", email: "", passwordHash: "", roleId: "" });
+      setShowPassword(false); // Reset password visibility
     } catch (err) {
       console.error("Save failed:", err);
       toast.error("Failed to save user");
@@ -282,17 +286,35 @@ export default function ManageUsers() {
                     *
                   </span>
                 </label>
-                <input
-                  id="user-password"
-                  type="text"
-                  value={formData.passwordHash}
-                  onChange={(e) =>
-                    setFormData({ ...formData, passwordHash: e.target.value })
-                  }
-                  className="w-full border rounded px-3 py-2 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
-                  required
-                  aria-required="true"
-                />
+                <div className="relative">
+                  <input
+                    id="user-password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.passwordHash}
+                    onChange={(e) =>
+                      setFormData({ ...formData, passwordHash: e.target.value })
+                    }
+                    className="w-full border rounded px-3 py-2 pr-10 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 focus:outline-none"
+                    required
+                    aria-required="true"
+                    aria-label="Password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1 rounded p-1"
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
+                    tabIndex={0}
+                  >
+                    {showPassword ? (
+                      <Eye className="w-5 h-5" />
+                    ) : (
+                      <EyeOff className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
               </div>
 
               <div>
