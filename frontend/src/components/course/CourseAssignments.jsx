@@ -152,7 +152,11 @@ export default function CourseAssignments({
                     {/* Due Date */}
                     <td className="py-3 px-4 text-gray-700">
                       {a.dueDate
-                        ? new Date(a.dueDate).toLocaleDateString()
+                        ? (() => {
+                            const dateStr = a.dueDate.split("T")[0];
+                            const [year, month, day] = dateStr.split("-");
+                            return `${month}/${day}/${year}`; // US format: MM/DD/YYYY
+                          })()
                         : "—"}
                     </td>
 

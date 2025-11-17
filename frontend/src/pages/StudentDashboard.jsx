@@ -268,15 +268,13 @@ export default function StudentDashboard() {
                           }
                         >
                           {(() => {
-                            // Parse date string (YYYY-MM-DD) as local date to avoid timezone issues
-                            const dateStr = (a.due_date || a.dueDate).split(
+                            // Format date string (YYYY-MM-DD) to US format (MM/DD/YYYY) without timezone conversion
+                            const dateStr = (a.due_date || a.dueDate)?.split(
                               "T"
                             )[0];
-                            const [year, month, day] = dateStr
-                              .split("-")
-                              .map(Number);
-                            const date = new Date(year, month - 1, day);
-                            return date.toLocaleDateString();
+                            if (!dateStr) return "—";
+                            const [year, month, day] = dateStr.split("-");
+                            return `${month}/${day}/${year}`; // US format: MM/DD/YYYY
                           })()}
                           {a.isOverdue && (
                             <span className="ml-2 text-xs text-red-500">
