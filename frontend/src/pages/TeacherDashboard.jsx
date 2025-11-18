@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/http";
 import toast from "react-hot-toast";
 
 export default function TeacherDashboard() {
+  const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [performance, setPerformance] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -117,9 +119,17 @@ export default function TeacherDashboard() {
                 key={course.courseId}
                 role="listitem"
                 aria-label={course.title}
-                className="p-4 bg-white rounded-xl shadow hover:shadow-md transition"
+                tabIndex={0}
+                onClick={() => navigate(`/teacher/courses/${course.courseId}`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    navigate(`/teacher/courses/${course.courseId}`);
+                  }
+                }}
+                className="p-4 bg-white rounded-xl shadow hover:shadow-md transition cursor-pointer hover:border-indigo-300 border border-transparent focus-within:ring-4 focus-within:ring-indigo-300 focus-within:ring-offset-2 focus:outline-none"
               >
-                <h3 className="text-indigo-700 font-semibold">
+                <h3 className="text-indigo-700 font-semibold hover:text-indigo-800">
                   {course.title}
                 </h3>
                 <p className="text-gray-600 text-sm mt-1">
